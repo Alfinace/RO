@@ -1,0 +1,57 @@
+table{
+	position: relative;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	input{
+		border: none;
+		background: rgb(212, 212, 212);
+		color: black;
+		border-radius: 2px;
+		max-width: 50px;
+		height:30px;
+		font-size: 15px;
+		text-align: center;
+		outline: none;
+	}
+}
+.flex{
+	display: flex;
+}
+.flex-center{
+	justify-content: center;
+	align-items: center;
+}
+.direction-col{
+	flex-direction: column;
+}
+.principale-data, .exp, .des{
+	margin-top: 20px;
+}
+.des{
+	margin-left: 20px;
+	input{
+		background: #47706582;
+	}
+}
+.exp{
+	input{
+		background: #47706582;
+	}
+}
+.content{
+	display: flex;
+	justify-content: center;
+	height: 100vh;
+	.container{
+		form{
+			text-align: center;
+		}
+		max-width: 800px;
+		width: 100%;
+		align-self: center;
+	}
+}
+.content-data{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+}
