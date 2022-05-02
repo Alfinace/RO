@@ -62,26 +62,26 @@ export class HomeComponent implements OnInit {
     this.initialize();
   }
 
-  // onInput(event : any){
-  //   let el = event.target;
-  //   let idElementToArray =  el.getAttribute('id').split('x');
-  //   let lineIndex = parseInt(idElementToArray[0]);
-  //   let colIndex = parseInt(idElementToArray[1]);    
-  //   this.matrice[lineIndex][colIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
-  // }
+  onInput(event : any){
+    let el = event.target;
+    let idElementToArray =  el.getAttribute('id').split('x');
+    let lineIndex = parseInt(idElementToArray[0]);
+    let colIndex = parseInt(idElementToArray[1]);    
+    this.matrice[lineIndex][colIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
+  }
 
-  // onInputColumn(event : any){
-  //   let el = event.target;
-  //   let idElementToArray =  el.getAttribute('id').split('x');
-  //   let colIndex = parseInt(idElementToArray[1]);    
-  //   this.X[colIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
-  // }
-  // onInputLine(event : any){
-  //   let el = event.target;
-  //   let idElementToArray =  el.getAttribute('id').split('x');
-  //   let lineIndex = parseInt(idElementToArray[1]);    
-  //   this.Y[lineIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
-  // }
+  onInputColumn(event : any){
+    let el = event.target;
+    let idElementToArray =  el.getAttribute('id').split('x');
+    let colIndex = parseInt(idElementToArray[1]);    
+    this.X[colIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
+  }
+  onInputLine(event : any){
+    let el = event.target;
+    let idElementToArray =  el.getAttribute('id').split('x');
+    let lineIndex = parseInt(idElementToArray[1]);    
+    this.Y[lineIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
+  }
   onCalculate(){
     for (let i = 0; i < this.number_column ; i++) {
       this.minicoMethod(i)
@@ -91,7 +91,7 @@ export class HomeComponent implements OnInit {
   minicoMethod(column: number){
     var line =  0;
     var minimum = this.matrice[line][column];
-    // for (let j = 0; j < this.number_line; j++) { 
+    for (let j = 0; j < this.number_line; j++) { 
       console.log(this.X[column]);
       
       if (this.X[column] > 0) {
@@ -104,7 +104,7 @@ export class HomeComponent implements OnInit {
         }
         this.differanceExpDes(line,column);    
       }
-    }!
+    }
   }
   differanceExpDes(line:number,column:number){
     console.log('line',line);
