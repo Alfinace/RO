@@ -15,14 +15,14 @@ export class HomeComponent implements OnInit {
   alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   nodeList: NodeListOf<Element>;
   matrice : any[][] = [
-    [24,22,61,49,83,35],
-    [23,39,78,28,65,42],
-    [67,56,92,24,53,54],
-    [71,43,91,67,40,49],
+    [9,12,9,6,9,10],
+    [7,3,7,7,5,5],
+    [6,5,9,11,3,11],
+    [6,8,11,2,2,10],
   ];
-  data : any[][];
-  X : number[] = [9,11,28,6,14,5];
-  Y : number[] = [18,32,14,9];
+  data: any[][];
+  B : number[] = [40,30,70,20,40,20];
+  R : number[] = [50,60,20,90];
   constructor(
     private formBuilder: FormBuilder,
   ) { }
@@ -35,19 +35,15 @@ export class HomeComponent implements OnInit {
   }
   initialize(){
     this.data = [];
-    for (let i = 0; i < this.number_line; i++) {
+    for (let i = 0; i < this.R.length; i++) {
       let newLine = [];
-      for (let j = 0; j < this.number_column; j++) {
+      for (let j = 0; j < this.B.length; j++) {
         newLine.push(0);     
       }
       this.data.push(newLine);
     }
-    
+    this.data = Array.from(this.data);    
   }
-  generateNumber(min : number = 1, max : number = 99) {
-    return Math.round(Math.random() * (max - min) + min);
-  }
-
   onGenarate(){
     this.columns = [];
     this.lines = [];
@@ -61,7 +57,85 @@ export class HomeComponent implements OnInit {
     }     
     this.initialize();
   }
+  onCalculate(){
+    var i = 0;    
+    while (i < this.B.length) {
+      let completed = true;
+      var begin = 0;
+      for (let a = 0; a < this.R.length; a++) {
+        if (this.data[a][i] == 0) {
+          begin = a;
+          completed = false;
+          break;
+        }
+      }
+      if (completed) {
+        i++;
+        console.log(completed);
+      }else{
+        var min = this.matrice[begin][i];        
+        var min_index = begin;
+        for (let j = 1; j < this.matrice.length; j++) {
+          let value = this.matrice[j][i];
+          if (min > value && this.data[j][i] == 0) {
+            min = value;
+            min_index = j;
+          }
+        }
+        if (this.B[i] > this.R[min_index]) {
+          let diff = this.B[i] - this.R[min_index];          
+          this.B[i] = diff;
+          for (let k = 0; k < this.B.length; k++) {
+            if (i == k && this.data[min_index][k] == 0) {
+              this.data[min_index][k] = this.R[min_index];
+            }else if (this.data[min_index][k] == 0){
+              this.data[min_index][k] = '-';
+            }
+          }
+          this.R[min_index] = 0;
+          continue;
+        } else if (this.B[i] < this.R[min_index]) {
+          let diff = this.R[min_index] - this.B[i];
+          this.R[min_index] = diff;
+          for (let k = 0; k < this.R.length; k++) {
+            if (k == min_index && this.data[k][i] == 0) {
+              this.data[k][i] =  this.B[i];
+            }else if (this.data[k][i] == 0) {
+              this.data[k][i] ='-';
+            }
+          }
+          this.B[i] = 0;
+          i++;
+        } else{
+          this.data[min_index][i] = this.B[i];
+          this.B[i] = 0;
+          this.R[min_index] = 0;
+          i++
+          
+          break;
+        }        
+        // if (i == 5) {
+        //   break
+        // }
+      }
+    }
 
+    this.findZ();
+  }
+
+  findZ(){
+    var z : number = 0;
+    for (let i = 0; i < this.data.length; i++) {
+      for (let j = 0; j < this.data[i].length; j++) {
+        const value = this.data[i][j];
+        if (!isNaN(value)) {
+          z += value * this.matrice[i][j];
+        }
+      }
+    }
+    console.log(z);
+    
+  }
   onInput(event : any){
     let el = event.target;
     let idElementToArray =  el.getAttribute('id').split('x');
@@ -74,74 +148,12 @@ export class HomeComponent implements OnInit {
     let el = event.target;
     let idElementToArray =  el.getAttribute('id').split('x');
     let colIndex = parseInt(idElementToArray[1]);    
-    this.X[colIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
+    this.B[colIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
   }
   onInputLine(event : any){
     let el = event.target;
     let idElementToArray =  el.getAttribute('id').split('x');
     let lineIndex = parseInt(idElementToArray[1]);    
-    this.Y[lineIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
-  }
-  onCalculate(){
-    for (let i = 0; i < this.number_column ; i++) {
-      this.minicoMethod(i)
-    }
-  }
-
-  minicoMethod(column: number){
-    var line =  0;
-    var minimum = this.matrice[line][column];
-    for (let j = 0; j < this.number_line; j++) { 
-      console.log(this.X[column]);
-      
-      if (this.X[column] > 0) {
-        for (let i = 1; i < this.number_line ; i++) {      
-          const value = this.matrice[i][column];
-          if ( minimum != '-' && this.Y[i] != 0 &&  minimum > value ) {
-            minimum = value
-            line = i;
-          }
-        }
-        this.differanceExpDes(line,column);    
-      }
-    }
-  }
-  differanceExpDes(line:number,column:number){
-    console.log('line',line);
-    
-    var x = this.X[column];
-    var y = this.Y[line];
-    if (x > y) {
-      var less = y
-      this.X[column] = this.X[column] - less;
-      this.Y[line] = 0;
-      for (let index = column; index < this.number_column ; index++) {
-        if (index == column ) {
-          this.data[line][column] = less;
-          console.log(this.data);    
-        }else{
-          this.data[line][index] = '-';
-          console.log('Ao',line,index);
-        }
-      }
-    }else if (x < y) {
-      var less = x
-      this.Y[line] = this.Y[line] - less;
-      this.X[column] = 0;
-      for (let index = line; index < this.number_line; index++) {
-        if (index == line) {
-          this.data[line][column] = less;
-          console.log(this.data);        
-        }else{
-          this.data[index][column] = '-';
-        }
-      }
-    }
-    else{
-      var less = y
-      this.X[column] = 0;
-      this.Y[line] = 0;
-      this.data[line][column] = less;
-    }
+    this.R[lineIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
   }
 }
