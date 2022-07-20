@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
@@ -7,6 +7,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+
   matriceForm: FormGroup;
   number_line : number ;
   number_column : number ;
@@ -21,7 +22,6 @@ export class HomeComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
   ) { }
-
   ngOnInit(): void {
     this.matriceForm = this.formBuilder.group({
       matrice:this.formBuilder.array([])
