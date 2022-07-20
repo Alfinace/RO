@@ -8,21 +8,16 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 })
 export class HomeComponent implements OnInit {
   matriceForm: FormGroup;
-  number_line : number = 4;
-  number_column : number = 6;
+  number_line : number ;
+  number_column : number ;
   lines = <any>[];
   columns = <any>[];
   alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   nodeList: NodeListOf<Element>;
-  matrice : any[][] = [
-    [9,12,9,6,9,10],
-    [7,3,7,7,5,5],
-    [6,5,9,11,3,11],
-    [6,8,11,2,2,10],
-  ];
+  matrice : any[][];
   data: any[][];
-  B : number[] = [40,30,70,20,40,20];
-  R : number[] = [50,60,20,90];
+  B : number[] = [];
+  R : number[] = [];
   constructor(
     private formBuilder: FormBuilder,
   ) { }
@@ -35,26 +30,24 @@ export class HomeComponent implements OnInit {
   }
   initialize(){
     this.data = [];
-    for (let i = 0; i < this.R.length; i++) {
-      let newLine = [];
-      for (let j = 0; j < this.B.length; j++) {
-        newLine.push(0);     
-      }
-      this.data.push(newLine);
+    this.matrice = [];
+    for (let i = 0; i < this.number_line; i++) {
+      this.data.push(Array(this.number_column).fill(0));
+      this.matrice.push(Array(this.number_column).fill(0));
     }
-    this.data = Array.from(this.data);    
+    this.R = Array(this.number_line).fill(0);
+    this.B = Array(this.number_column).fill(0);
+    
   }
-  onGenarate(){
+  onGenarate(){ 
     this.columns = [];
     this.lines = [];
     for (let i = 0; i < this.number_line; i++) {
       this.lines.push(i);
-      // this.Y.push(0);
     }
     for (let i = 0; i < this.number_column; i++) {
       this.columns.push(i);
-      // this.X.push(0);
-    }     
+    }    
     this.initialize();
   }
   onCalculate(){
@@ -114,9 +107,6 @@ export class HomeComponent implements OnInit {
           
           break;
         }        
-        // if (i == 5) {
-        //   break
-        // }
       }
     }
 
