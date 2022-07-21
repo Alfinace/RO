@@ -1,5 +1,7 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { linkModel } from 'src/app/models/model.link';
+import { NodeModel } from 'src/app/models/model.node';
 
 @Component({
   selector: 'app-home',
@@ -8,38 +10,56 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 })
 export class HomeComponent implements OnInit {
 
-  matriceForm: FormGroup;
-  number_line : number ;
-  number_column : number ;
-  lines = <any>[];
-  columns = <any>[];
-  alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  nodeList: NodeListOf<Element>;
-  matrice : any[][];
-  data: any[][];
-  B : number[] = [];
-  R : number[] = [];
+  public matriceForm: FormGroup;
+  public showDiagram: boolean = false;
+  public nodeData: Array<NodeModel> = [];
+  
+  public linkData: Array<linkModel>  = []; 
+  public number_line : number ;
+  public number_column : number ;
+  public lines = <any>[];
+  public columns = <any>[];
+  public alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  public nodeList: NodeListOf<Element>;
+  public matrice : any[][];
+  public data: any[][];
+  public B : number[] = [];
+  public R : number[] = [];
   constructor(
     private formBuilder: FormBuilder,
+    private changeDetectorRef: ChangeDetectorRef
   ) { }
+  // ngAfterViewInit(): void {
+  //   this.changeDetectorRef.detectChanges()
+  // }
   ngOnInit(): void {
     this.matriceForm = this.formBuilder.group({
       matrice:this.formBuilder.array([])
     })
     this.initialize();
   }
-  initialize(){
+  private initialize(){
     this.data = [];
     this.matrice = [];
+    this.nodeData = [];
+    var space = 0;
     for (let i = 0; i < this.number_line; i++) {
+      this.nodeData.push({key:i,text:this.alfa[i],loc:"100 "+(100+space).toString()})
       this.data.push(Array(this.number_column).fill(0));
       this.matrice.push(Array(this.number_column).fill(0));
+      space += 70;
+    }
+    space = 0;
+    for (let i = 1; i <= this.number_column; i++) {
+      this.nodeData.push({key:this.number_line+i -1,text:i.toString(),loc:"300 "+(100+space).toString()});
+      space += 70;
     }
     this.R = Array(this.number_line).fill(0);
     this.B = Array(this.number_column).fill(0);
+    this.showDiagram = true;
     
   }
-  onGenarate(){ 
+  public onGenarate(){ 
     this.columns = [];
     this.lines = [];
     for (let i = 0; i < this.number_line; i++) {
@@ -50,7 +70,7 @@ export class HomeComponent implements OnInit {
     }    
     this.initialize();
   }
-  onCalculate(){
+  public onCalculate(){
     var i = 0;    
     while (i < this.B.length) {
       let completed = true;
@@ -64,7 +84,6 @@ export class HomeComponent implements OnInit {
       }
       if (completed) {
         i++;
-        console.log(completed);
       }else{
         var min = this.matrice[begin][i];        
         var min_index = begin;
@@ -109,24 +128,34 @@ export class HomeComponent implements OnInit {
         }        
       }
     }
-
+    
     this.findZ();
+    
   }
 
-  findZ(){
+  private findZ(){
     var z : number = 0;
+    var tmpLinkData: Array<linkModel> = [];
     for (let i = 0; i < this.data.length; i++) {
       for (let j = 0; j < this.data[i].length; j++) {
         const value = this.data[i][j];
         if (!isNaN(value)) {
+          this.linkData.push({
+            from: j,
+            to: this.number_line + i,
+            text: this.matrice[i][j].toString()
+          })
           z += value * this.matrice[i][j];
         }
       }
     }
-    console.log(z);
+
+    // this.linkData = tmpLinkData;
+    console.log(this.linkData);
     
+    console.log(z);
   }
-  onInput(event : any){
+  public onInput(event : any){
     let el = event.target;
     let idElementToArray =  el.getAttribute('id').split('x');
     let lineIndex = parseInt(idElementToArray[0]);
@@ -134,13 +163,13 @@ export class HomeComponent implements OnInit {
     this.matrice[lineIndex][colIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
   }
 
-  onInputColumn(event : any){
+  public onInputColumn(event : any){
     let el = event.target;
     let idElementToArray =  el.getAttribute('id').split('x');
     let colIndex = parseInt(idElementToArray[1]);    
     this.B[colIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
   }
-  onInputLine(event : any){
+  public onInputLine(event : any){
     let el = event.target;
     let idElementToArray =  el.getAttribute('id').split('x');
     let lineIndex = parseInt(idElementToArray[1]);    

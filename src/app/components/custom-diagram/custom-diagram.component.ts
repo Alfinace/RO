@@ -1,44 +1,28 @@
-import { AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import * as go from 'gojs';
 import { DataSyncService, DiagramComponent, PaletteComponent } from 'gojs-angular';
+import { linkModel } from 'src/app/models/model.link';
+import { NodeModel } from 'src/app/models/model.node';
 @Component({
   selector: 'app-custom-diagram',
   templateUrl: './custom-diagram.component.html',
   styleUrls: ['./custom-diagram.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class CustomDiagramComponent implements AfterViewInit {
+export class CustomDiagramComponent {
   @ViewChild('myDiagramDiv', { static: true }) public myDiagramComponent: DiagramComponent;
-  public diagramNodeData: Array<any> = [
-    {"key":1, "text":"20",  "loc":"100 100"},
-    {"key":2, "text":"52",  "loc":"100 170"},
-    {"key":3, "text":"20",  "loc":"100 240"},
-    {"key":4, "text":"4",  "loc":"100 310"},
-    {"key":5, "text":"54",  "loc":"100 380"},
-    {"key":7, "text":"24",  "loc":"100 450"},
-    {"key":8, "text":"71",  "loc":"300 100"},
-    {"key":9, "text":"4",  "loc":"300 170"},
-    {"key":10, "text":"8",  "loc":"300 240"},
-    {"key":11, "text":"2",  "loc":"300 310"},
-    {"key":12, "text":"10",  "loc":"300 380"},
-    {"key":13, "text":"32",  "loc":"300 450"} 
-   
-  ];
-  public diagramLinkData: Array<any> = [
-    {from: 1, to: 13 },
-    {from: 1, to: 8 },
-  ];
-  constructor() { }
-  ngAfterViewInit(): void {
-  }
-
-  ngOnInit(): void {
-  }
-
+  @Input() public diagramNodeData: Array<NodeModel> = [];
+  @Input() public diagramLinkData: Array<linkModel> = [];
+  constructor(private changeDetectorRef: ChangeDetectorRef) { }
+  // ngAfterViewInit(): void {
+  // this.changeDetectorRef.detectChanges();
+  // }
   public initDiagram(): go.Diagram {
     
     const $ = go.GraphObject.make;
     const dia = $(go.Diagram, {
+      "ExternalObjectsDropped": (e)=> {console.log(e);
+      },
       "draggingTool.isEnabled": false,
       'undoManager.isEnabled': true, // must be set to allow for model change listening
       // 'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
@@ -51,13 +35,15 @@ export class CustomDiagramComponent implements AfterViewInit {
     // define the Node template
     dia.nodeTemplate =
     $(go.Node, "Spot",
-      { locationSpot: go.Spot.Center },
+      { locationSpot: go.Spot.Center},
       new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
       $(go.Shape,
         {
           figure:'Circle',
-          width: 50, height: 50, fill: "white",
+          width: 50, height: 50, fill: "#33ceac",
+          stroke:'white',
           portId: "", cursor: "pointer",
+          strokeWidth: 0,
           fromLinkable: true,
           fromLinkableSelfNode: false, fromLinkableDuplicates: false,  // optional
           toLinkable: true,
@@ -70,12 +56,25 @@ export class CustomDiagramComponent implements AfterViewInit {
   
         dia.linkTemplate =
         $(go.Link,
-          { reshapable: true, resegmentable: true },
-          //{ routing: go.Link.Orthogonal },  // optional, but need to keep LinkingTool.temporaryLink in sync, above
-          { adjusting: go.Link.Stretch },  // optional
+          { reshapable: true,
+            resegmentable: true,
+            selectable: false,      // links cannot be selected by the user
+            curve: go.Link.Bezier,
+          },
+          // { routing: go.Link.Orthogonal },  // optional, but need to keep LinkingTool.temporaryLink in sync, above
+          { adjusting: go.Link.Bezier },  // optional
           new go.Binding("points", "points").makeTwoWay(),
-          $(go.Shape, { strokeWidth: 1.5 }),
-          $(go.Shape, { toArrow: "OpenTriangle" }));
+          $(go.Shape,  { isPanelMain: true, stroke: "black", strokeWidth: 1 },),
+          $(go.Shape, { toArrow: "OpenTriangle", stroke: "black" }),
+          $(go.TextBlock, {
+            stroke:"#ff623e",
+            font: '11pt serif',
+            background: "white",
+            overflow: go.TextBlock.OverflowEllipsis,
+            maxLines: 2,
+            margin: 20,
+          },
+            new go.Binding("text","text")));
     return dia;
   }
   
@@ -85,8 +84,8 @@ export class CustomDiagramComponent implements AfterViewInit {
   
   // When the diagram model changes, update app data to reflect those changes
   public diagramModelChange = (changes: any) => {
-    this.diagramNodeData = DataSyncService.syncNodeData(changes, this.diagramNodeData);
-    this.diagramLinkData = DataSyncService.syncLinkData(changes, this.diagramLinkData);
+    this.diagramNodeData = DataSyncService.syncNodeData(changes, this.diagramNodeData) as any;
+    this.diagramLinkData = DataSyncService.syncLinkData(changes, this.diagramLinkData) as any;
     this.diagramModelData = DataSyncService.syncModelData(changes, this.diagramModelData) as any;
   };
 
