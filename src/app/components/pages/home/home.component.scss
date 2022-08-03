@@ -46,10 +46,11 @@ table{
 }
 .content{
 	display: flex;
-	justify-content: space-around;
+	flex-direction: column;
+	justify-content: center;
 	margin-bottom: 30px;
 	.container{
-		max-width: 800px;
+		// max-width: 800px;
 		width: 100%;
 		align-self: flex-start;
 		form{

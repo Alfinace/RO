@@ -17,8 +17,12 @@ export class HomeComponent implements OnInit {
   public linkData: Array<linkModel>  = []; 
   public number_line : number ;
   public number_column : number ;
-  public lines = <any>[];
-  public columns = <any>[];
+  public lines: Array<number> =[];
+  public columns: Array<number> =[];
+  public max: any;
+;
+  public Vx: Array<number> =[];
+  public Vy: Array<number> =[];
   public alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   public nodeList: NodeListOf<Element>;
   public matrice : any[][];
@@ -29,14 +33,11 @@ export class HomeComponent implements OnInit {
     private formBuilder: FormBuilder,
     private changeDetectorRef: ChangeDetectorRef
   ) { }
-  // ngAfterViewInit(): void {
-  //   this.changeDetectorRef.detectChanges()
-  // }
   ngOnInit(): void {
     this.matriceForm = this.formBuilder.group({
       matrice:this.formBuilder.array([])
     })
-    this.initialize();
+    // this.initialize();
   }
   private initialize(){
     this.data = [];
@@ -55,13 +56,13 @@ export class HomeComponent implements OnInit {
       space += 70;
     }
     this.R = Array(this.number_line).fill(0);
-    this.B = Array(this.number_column).fill(0);
-    this.showDiagram = true;
-    
+    this.B = Array(this.number_column).fill(0);    
   }
   public onGenarate(){ 
     this.columns = [];
     this.lines = [];
+    this.Vx = Array(this.number_line).fill(0);
+    this.Vy = Array(this.number_column).fill(0);
     for (let i = 0; i < this.number_line; i++) {
       this.lines.push(i);
     }
@@ -69,6 +70,11 @@ export class HomeComponent implements OnInit {
       this.columns.push(i);
     }    
     this.initialize();
+    // this.valeurAleatoire();
+    console.log(this.matrice);
+    console.log('R',this.R);
+    console.log('B',this.B);
+    
   }
   public onCalculate(){
     var i = 0;    
@@ -133,27 +139,35 @@ export class HomeComponent implements OnInit {
     
   }
 
+  // calcule Z et cherche maximun
   private findZ(){
     var z : number = 0;
+    this.max  = { value: 0, x: null, y: null};
     var tmpLinkData: Array<linkModel> = [];
     for (let i = 0; i < this.data.length; i++) {
       for (let j = 0; j < this.data[i].length; j++) {
         const value = this.data[i][j];
+        
         if (!isNaN(value)) {
-          this.linkData.push({
-            from: j,
-            to: this.number_line + i,
+          tmpLinkData.push({
+            from: i,
+            to: this.number_line + j,
             text: this.matrice[i][j].toString()
           })
           z += value * this.matrice[i][j];
+          if (this.max.value < this.matrice[i][j]) {
+            this.max ={ value: this.matrice[i][j], x:i, y:j}
+          }
         }
       }
     }
 
-    // this.linkData = tmpLinkData;
-    console.log(this.linkData);
-    
+    this.linkData = tmpLinkData;
+    this.showDiagram = true;
+    console.log(this.data);
     console.log(z);
+    console.log(this.max);
+    console.log(this.linkData);
   }
   public onInput(event : any){
     let el = event.target;
@@ -175,4 +189,46 @@ export class HomeComponent implements OnInit {
     let lineIndex = parseInt(idElementToArray[1]);    
     this.R[lineIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
   }
+
+
+  potentiel(){
+    this.Vx[this.max.i] = 0;
+    //mandroso
+    for (let i = 0; i < this.data[this.max.i].length; i++) {
+      if (!isNaN(this.data[this.max.y][i])) {
+        this.Vy[i] = this.matrice[this.max.i][i] + this.Vx[this.max.i];
+        //mihemotra
+        for (let j = 0; j < this.number_line; j++) {
+          const element = this.data[i][j];
+          if (!isNaN(this.data[i][j])) {
+            this.Vx[j] =  this.Vy[i] - this.matrice[i][j];
+          }
+          
+        }
+      }
+    }
+  }
+
+  valeurAleatoire(){
+    this.matrice = [];
+    this.data = [];
+    this.R = [];
+    this.B = [];
+    for (let i = 0; i < this.number_line; i++) {
+      this.matrice.push([]);
+      this.R.push(this.randomNum(1,100));
+      this.data.push(Array(this.number_column).fill(0));
+      for (let j = 0; j < this.number_column; j++) {
+        this.matrice[i].push(this.randomNum(1,100))
+      }
+    }
+    for (let j = 0; j < this.number_column; j++) {
+      this.B.push(this.randomNum(1,100));
+    }
+  }
+
+  randomNum(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min)) + min; // You can remove the Math.floor if you don't want it to be an integer
+  }
 }
+

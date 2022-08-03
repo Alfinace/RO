@@ -46,5 +46,5 @@
 			<button class="btn-a" (click)="onCalculate()">Calculate</button>
 		</div>
 	</div>
-	<app-custom-diagram [diagramNodeData]="nodeData" [diagramLinkData]="linkData"></app-custom-diagram>
+	<app-custom-diagram *ngIf="showDiagram" [diagramNodeData]="nodeData" [diagramLinkData]="linkData"></app-custom-diagram>
 </div>

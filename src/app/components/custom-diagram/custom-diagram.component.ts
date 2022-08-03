@@ -23,7 +23,7 @@ export class CustomDiagramComponent {
     const dia = $(go.Diagram, {
       "ExternalObjectsDropped": (e)=> {console.log(e);
       },
-      "draggingTool.isEnabled": false,
+      // "draggingTool.isEnabled": false,
       'undoManager.isEnabled': true, // must be set to allow for model change listening
       // 'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
       model: $(go.GraphLinksModel,
