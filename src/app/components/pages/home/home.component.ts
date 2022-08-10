@@ -21,8 +21,8 @@ export class HomeComponent implements OnInit {
   public columns: Array<number> =[];
   public max: any;
 ;
-  public Vx: Array<number> =[];
-  public Vy: Array<number> =[];
+  public Vx: Array<any> =[];
+  public Vy: Array<any> =[];
   public alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   public nodeList: NodeListOf<Element>;
   public matrice : any[][];
@@ -61,8 +61,8 @@ export class HomeComponent implements OnInit {
   public onGenarate(){ 
     this.columns = [];
     this.lines = [];
-    this.Vx = Array(this.number_line).fill(0);
-    this.Vy = Array(this.number_column).fill(0);
+    this.Vx = Array(this.number_line).fill(NaN);
+    this.Vy = Array(this.number_column).fill(NaN);
     for (let i = 0; i < this.number_line; i++) {
       this.lines.push(i);
     }
@@ -70,7 +70,7 @@ export class HomeComponent implements OnInit {
       this.columns.push(i);
     }    
     this.initialize();
-    // this.valeurAleatoire();
+    this.valeurAleatoire();
     console.log(this.matrice);
     console.log('R',this.R);
     console.log('B',this.B);
@@ -165,9 +165,7 @@ export class HomeComponent implements OnInit {
     this.linkData = tmpLinkData;
     this.showDiagram = true;
     console.log(this.data);
-    console.log(z);
-    console.log(this.max);
-    console.log(this.linkData);
+    this.potentiel();
   }
   public onInput(event : any){
     let el = event.target;
@@ -187,26 +185,40 @@ export class HomeComponent implements OnInit {
     let el = event.target;
     let idElementToArray =  el.getAttribute('id').split('x');
     let lineIndex = parseInt(idElementToArray[1]);    
-    this.R[lineIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
+    this.R[lineIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.vaslue);
   }
 
 
   potentiel(){
-    this.Vx[this.max.i] = 0;
-    //mandroso
-    for (let i = 0; i < this.data[this.max.i].length; i++) {
-      if (!isNaN(this.data[this.max.y][i])) {
-        this.Vy[i] = this.matrice[this.max.i][i] + this.Vx[this.max.i];
-        //mihemotra
-        for (let j = 0; j < this.number_line; j++) {
-          const element = this.data[i][j];
-          if (!isNaN(this.data[i][j])) {
-            this.Vx[j] =  this.Vy[i] - this.matrice[i][j];
+    var {x, y} = this.max;
+    // this.Vx[x] = 0;
+    console.log(this.max);
+    var breakerCompte = 0;
+    //mandroso   
+    while (this.Vx.includes(NaN) || this.Vy.includes(NaN)) {
+            
+      for (let i = 0; i < this.number_line; i++) {
+        for (let j = 0; j < this.number_column; j++) {
+          let value = this.data[i][j]  
+          if (!isNaN(value) && !isNaN(this.Vy[j])) {
+            this.Vx[i] = (this.Vy[j] - this.matrice[i][j]) >= 0 ? this.Vy[j] - this.matrice[i][j] : NaN ;
+          }else if(i == x){
+            if (j == y && isNaN(this.Vx[i])) {
+              this.Vx[i] = 0;
+              this.Vy[j] = this.max.value;
+            }else{
+              this.Vy[j] = this.matrice[i][j] + this.Vx[i];
+            }
           }
-          
         }
       }
-    }
+      // if (breakerCompte == 100) {
+      //   break
+      // }
+      // breakerCompte++
+    } 
+    console.log('Vx',this.Vx);
+    console.log('Vy',this.Vy);
   }
 
   valeurAleatoire(){
