@@ -198,24 +198,29 @@ export class HomeComponent implements OnInit {
     while (this.Vx.includes(NaN) || this.Vy.includes(NaN)) {
             
       for (let i = 0; i < this.number_line; i++) {
+
         for (let j = 0; j < this.number_column; j++) {
           let value = this.data[i][j]  
           if (!isNaN(value) && !isNaN(this.Vy[j])) {
             this.Vx[i] = (this.Vy[j] - this.matrice[i][j]) >= 0 ? this.Vy[j] - this.matrice[i][j] : NaN ;
-          }else if(i == x){
+          }else if(i == x && !isNaN(value)){
             if (j == y && isNaN(this.Vx[i])) {
               this.Vx[i] = 0;
               this.Vy[j] = this.max.value;
             }else{
               this.Vy[j] = this.matrice[i][j] + this.Vx[i];
             }
+          }else{
+            if (!isNaN(value) && !isNaN(this.Vx[i]) && this.Vx[i] != 0 && isNaN(this.Vy[j])) {
+              this.Vy[j] = this.matrice[i][j] + this.Vx[i];
+            }
           }
         }
       }
-      // if (breakerCompte == 100) {
-      //   break
-      // }
-      // breakerCompte++
+      if (breakerCompte == 10000) {
+        break
+      }
+      breakerCompte++
     } 
     console.log('Vx',this.Vx);
     console.log('Vy',this.Vy);
