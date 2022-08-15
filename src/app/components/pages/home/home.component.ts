@@ -135,12 +135,12 @@ export class HomeComponent implements OnInit {
       }
     }
     
-    this.findZ();
+    this.calculZValue();
     
   }
 
   // calcule Z et cherche maximun
-  private findZ(){
+  private calculZValue(){
     var z : number = 0;
     this.max  = { value: 0, x: null, y: null};
     var tmpLinkData: Array<linkModel> = [];
@@ -165,7 +165,7 @@ export class HomeComponent implements OnInit {
     this.linkData = tmpLinkData;
     this.showDiagram = true;
     console.log(this.data);
-    this.potentiel();
+    this.findVxAndVy();
   }
   public onInput(event : any){
     let el = event.target;
@@ -189,9 +189,8 @@ export class HomeComponent implements OnInit {
   }
 
 
-  potentiel(){
+  findVxAndVy(){
     var {x, y} = this.max;
-    // this.Vx[x] = 0;
     console.log(this.max);
     var breakerCompte = 0;
     //mandroso   
@@ -217,7 +216,7 @@ export class HomeComponent implements OnInit {
           }
         }
       }
-      if (breakerCompte == 10000) {
+      if (breakerCompte == 100000) {
         break
       }
       breakerCompte++
@@ -247,5 +246,44 @@ export class HomeComponent implements OnInit {
   randomNum(min: number, max: number) {
     return Math.floor(Math.random() * (max - min)) + min; // You can remove the Math.floor if you don't want it to be an integer
   }
+
+  marquage() {
+    var lamdas : {x: number , y: number, value: number}[] = [];
+    for (let i = 0; i < this.number_line; i++) {
+      for (let j = 0; j < this.number_column; j++) {
+        if (isNaN(this.data[i][j])) lamdas.push({x:i,y:j,value:this.Vx[i]+this.matrice[i][j]-this.Vy[j]})
+      }      
+    }
+    lamdas = lamdas.filter(l => l.value < 0);
+    if (lamdas.length > 0) {
+      for (let i = 0; i < lamdas.length; i++) {
+        var satisfied = false;
+        var path : {x: number , y: number, value: number}[] = [];
+        const start = lamdas[i];
+        path.push(start)
+        var current = start;
+        for (let j = 0; j < this.number_line; j++) {
+          if (!isNaN(this.data[i][current.y]) && i != current.x) {
+            if (path[path.length - 1].value > 0) {
+              path.push({x:j,y:current.y,value:-this.data[i][current.y]})
+            }else{
+              path.push({x:j,y:current.y,value:this.data[i][current.y]})
+            }
+            var lastPath = path[path.length - 1];
+            for (let k = 0; k < this.number_column; k++) {
+              if (!isNaN(this.data[lastPath.x][k]) && k != lastPath.x) {
+                current = {x: lastPath.x , y: k, value: this.data[lastPath.x][k]}
+                if (start.x == current.x && start.y == current.y && start.value == current.value) {
+                  
+                }
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
 }
 
