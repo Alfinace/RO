@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { linkModel } from 'src/app/models/model.link';
 import { NodeModel } from 'src/app/models/model.node';
@@ -10,6 +10,7 @@ import { NodeModel } from 'src/app/models/model.node';
 })
 export class HomeComponent implements OnInit {
 
+  @ViewChild('step') step: ElementRef
   public matriceForm: FormGroup;
   public showDiagram: boolean = false;
   public nodeData: Array<NodeModel> = [];
@@ -37,9 +38,8 @@ export class HomeComponent implements OnInit {
     this.matriceForm = this.formBuilder.group({
       matrice:this.formBuilder.array([])
     })
-    // this.initialize();
   }
-  private initialize(){
+  private initialize(){    
     this.data = [];
     this.matrice = [];
     this.nodeData = [];
@@ -71,10 +71,10 @@ export class HomeComponent implements OnInit {
     }    
     this.initialize();
     this.valeurAleatoire();
-    console.log(this.matrice);
-    console.log('R',this.R);
-    console.log('B',this.B);
-    
+    console.log(this.matrice);    
+    console.log([...this.data]);    
+    console.log(this.R);    
+    console.log(this.B);    
   }
   public onCalculate(){
     var i = 0;    
@@ -129,12 +129,51 @@ export class HomeComponent implements OnInit {
           this.B[i] = 0;
           this.R[min_index] = 0;
           i++
-          
           break;
         }        
       }
     }
-    
+    var table = document.createElement('table');
+    table.setAttribute('style','border-collapse: collapse')
+    var thead = document.createElement('thead');
+    var trh = document.createElement('tr');
+    trh.setAttribute('style','height: 50px')
+    var tbody = document.createElement('tbody');
+    trh.appendChild(document.createElement('th'))
+    for (let i = 0; i < this.number_column; i++) {
+      let th = document.createElement('th');
+      th.innerText = (i+1).toString()
+      trh.appendChild(th)
+    }
+    thead.appendChild(trh);
+    table.appendChild(thead);
+    for (let i = 0; i < this.data.length; i++) {
+      let tr = document.createElement('tr');
+      let tdFirst = document.createElement('td');
+      tdFirst.innerText = this.alfa[i]
+      tdFirst.setAttribute('style','padding: 15px;')
+      tr.appendChild(tdFirst)
+      for (let j = 0; j < this.data[i].length; j++) {
+        let td = document.createElement('td');
+        td.setAttribute('style','border: 1px solid #000;padding: 15px;width: 20px;text-align:center')
+        td.innerText = this.data[i][j];
+        tr.appendChild(td)
+      }
+      let tdLast = document.createElement('td');
+      tdLast.innerText = this.R[i].toString();
+      tr.appendChild(tdLast)
+      tbody.appendChild(tr)
+    }
+    let trLast = document.createElement('tr');
+    for (let i = 0; i < this.B.length; i++) {
+      let tdLast = document.createElement('td');
+      tdLast.setAttribute('style','padding: 15px;width: 20px;text-align:center')
+      tdLast.innerText = this.B[i].toString();
+      trLast.appendChild(tdLast)
+    }
+    tbody.appendChild(trLast)
+    table.appendChild(tbody);
+    this.step.nativeElement.appendChild(table)
     this.calculZValue();
     
   }
@@ -164,6 +203,7 @@ export class HomeComponent implements OnInit {
 
     this.linkData = tmpLinkData;
     this.showDiagram = true;
+    console.log(this.matrice);
     console.log(this.data);
     this.findVxAndVy();
   }
@@ -176,12 +216,16 @@ export class HomeComponent implements OnInit {
   }
 
   public onInputColumn(event : any){
+    console.log(event);
+    
     let el = event.target;
     let idElementToArray =  el.getAttribute('id').split('x');
     let colIndex = parseInt(idElementToArray[1]);    
     this.B[colIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
   }
   public onInputLine(event : any){
+    console.log(event);
+
     let el = event.target;
     let idElementToArray =  el.getAttribute('id').split('x');
     let lineIndex = parseInt(idElementToArray[1]);    
@@ -223,6 +267,7 @@ export class HomeComponent implements OnInit {
     } 
     console.log('Vx',this.Vx);
     console.log('Vy',this.Vy);
+    // this.marquage();
   }
 
   valeurAleatoire(){
@@ -231,7 +276,7 @@ export class HomeComponent implements OnInit {
     this.R = [];
     this.B = [];
     for (let i = 0; i < this.number_line; i++) {
-      this.matrice.push([]);
+      // this.matrice.push([]);
       this.R.push(this.randomNum(1,100));
       this.data.push(Array(this.number_column).fill(0));
       for (let j = 0; j < this.number_column; j++) {
@@ -254,36 +299,90 @@ export class HomeComponent implements OnInit {
         if (isNaN(this.data[i][j])) lamdas.push({x:i,y:j,value:this.Vx[i]+this.matrice[i][j]-this.Vy[j]})
       }      
     }
-    lamdas = lamdas.filter(l => l.value < 0);
-    if (lamdas.length > 0) {
-      for (let i = 0; i < lamdas.length; i++) {
+    console.log(lamdas);
+    
+    var _lamdas = lamdas.filter(lamda => {
+        return lamda.value < 0
+      });
+    console.log(_lamdas);
+    if (_lamdas.length > 0) {
+      for (let i = 0; i < _lamdas.length; i++) {
         var satisfied = false;
         var path : {x: number , y: number, value: number}[] = [];
-        const start = lamdas[i];
+        var start = {..._lamdas[i]};
+        start.value = this.matrice[start.x][start.y];
         path.push(start)
         var current = start;
         for (let j = 0; j < this.number_line; j++) {
-          if (!isNaN(this.data[i][current.y]) && i != current.x) {
+          console.log(`${j}, ${current.y}`, this.data[j][current.y]);
+          
+          if (!isNaN(this.data[j][current.y]) && i != current.x) {
             if (path[path.length - 1].value > 0) {
-              path.push({x:j,y:current.y,value:-this.data[i][current.y]})
+              path.push({x:j,y:current.y,value:-this.data[j][current.y]})
             }else{
-              path.push({x:j,y:current.y,value:this.data[i][current.y]})
+              path.push({x:j,y:current.y,value:this.data[j][current.y]})
             }
+
             var lastPath = path[path.length - 1];
-            for (let k = 0; k < this.number_column; k++) {
-              if (!isNaN(this.data[lastPath.x][k]) && k != lastPath.x) {
-                current = {x: lastPath.x , y: k, value: this.data[lastPath.x][k]}
-                if (start.x == current.x && start.y == current.y && start.value == current.value) {
-                  
+            var badPathX = [];
+            var badPathY = [];
+            while (!satisfied) {
+              let resLine = this.findNumberInLine(lastPath.y);
+              if (resLine.found) {
+                let resCol = this.findNumberInColumn(lastPath.x);
+                if (resCol.found) {
+                    lastPath = {x:resLine.index, y:resCol.index, value: this.data[resLine.index][resCol.index]}
+                    if (path[path.length - 1].value > 0) {
+                      path.push({x:resLine.index, y:resCol.index, value: -this.data[resLine.index][resCol.index]})
+                    }else{
+                      path.push({x:resLine.index, y:resCol.index, value: this.data[resLine.index][resCol.index]})
+                    }
+                }else{
+                  badPathX.push(lastPath.x)
                 }
-                break;
+              }else{
+                badPathY.push(lastPath.y)
               }
             }
+            // for (let k = 0; k < this.number_column; k++) {
+            //   if (!isNaN(this.data[lastPath.x][k]) && k != lastPath.x) {
+            //     current = {x: lastPath.x , y: k, value: this.data[lastPath.x][k]}
+            //     if (start.x == current.x && start.y == current.y && start.value == current.value) {
+            //       satisfied =  true;
+            //     }
+            //     // break;
+            //   }
+            // }
           }
         }
+        console.log(satisfied);
+        console.log(path);
       }
     }
   }
 
-}
+  findNumberInLine(lastPath: any, badPath: number[] = []){
+    var res = {found: false, index: -1}
+    for (let i = 0; i < this.data.length; i++) {
+      const e = this.data[i][lastPath.y];
+      if (!isNaN(e) && i != lastPath.x && badPath.includes(i)) {
+        res = {found: true, index: i}
+        break;
+      }
+    }
+    return res
+  }
 
+  findNumberInColumn(lastPath: any, badPath: number[] = []){
+    var res = {found: false, index: -1}
+    for (let i = 0; i < this.data.length; i++) {
+      const e = this.data[lastPath.x][i];
+      if (!isNaN(e) && i != lastPath.y && badPath.includes(i)) {
+        res = {found: true, index: i}
+        break;
+      }
+    }
+    return res
+  }
+
+}

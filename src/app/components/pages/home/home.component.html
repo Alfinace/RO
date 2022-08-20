@@ -2,49 +2,52 @@
 	<div class="container">
 		<form [formGroup]="matriceForm"	 autocomplete="off" >
 			<h1>RECHERCHE OPERATIONNELLE</h1>
-			<h5>(Problème de transport MINICO</h5>
+			<h5>Problème de transport MINICO</h5>
 			<div class="flex">
 				<input type="number" [(ngModel)]="number_line" max="42" min="0" [ngModelOptions]="{standalone: true}" placeholder="Ligne">
 				<input type="number" [(ngModel)]="number_column" min="0" [ngModelOptions]="{standalone: true}" placeholder="Colonne">
 				<button (click)="onGenarate()" class="btn">Generate</button>
 			</div>
 		</form>
-		<div class="flex direction-col flex-center">
-			<div>
-				<div class="content-data">
-					<table class="alfa">
-						<tr *ngFor="let line of lines; let index">
-							{{alfa[index]}}
-						</tr>
-					</table>
-					<table class="principale-data">
-						<thead>
-							<td class="text-center" *ngFor="let column of columns;let index"> {{index + 1}} </td>
-						</thead>
-						<tr *ngFor="let line of lines">
-							<td *ngFor="let column of columns">
-								<input id="{{line}}x{{column}}" type="number"  (input)="onInput($event)">
-							</td>
-						</tr>
-					</table>
-					<table class="des">
-						<tr *ngFor="let line of lines; let index">
-							<input id="linex{{index}}" type="number" (input)="onInputLine($event)">
-						</tr>
-					</table>
-				</div>
+		<div style="display:flex; flex-wrap: wrap;gap: 20px;justify-content: space-around;">
+			<div class="flex direction-col flex-center">
 				<div>
-					<table class="exp">
-						<tr>
-							<td *ngFor="let column of columns; let index">
-								<input id="colx{{index}}" type="number" (input)="onInputColumn($event)">
-							</td>
-						</tr>
-					</table>
+					<div class="content-data">
+						<table class="alfa">
+							<tr *ngFor="let line of lines; let index">
+								{{alfa[index]}}
+							</tr>
+						</table>
+						<table class="principale-data">
+							<thead>
+								<td class="text-center" *ngFor="let column of columns;let index"> {{index + 1}} </td>
+							</thead>
+							<tr *ngFor="let line of lines">
+								<td *ngFor="let column of columns">
+									<input id="{{line}}x{{column}}" type="number"  (input)="onInput($event)">
+								</td>
+							</tr>
+						</table>
+						<table class="des">
+							<tr *ngFor="let line of lines; let index">
+								<input id="linex{{index}}" type="number" (input)="onInputLine($event)">
+							</tr>
+						</table>
+					</div>
+					<div>
+						<table class="exp">
+							<tr>
+								<td *ngFor="let column of columns; let index">
+									<input id="colx{{index}}" type="number" (input)="onInputColumn($event)">
+								</td>
+							</tr>
+						</table>
+					</div>
 				</div>
+				<button class="btn-a" *ngIf="lines.length > 0" (click)="onCalculate()">Calculate</button>
 			</div>
-			<button class="btn-a" (click)="onCalculate()">Calculate</button>
+			<div #step></div>
+			<app-custom-diagram style="transform: scale(0.7);" *ngIf="showDiagram" [diagramNodeData]="nodeData" [diagramLinkData]="linkData"></app-custom-diagram>
 		</div>
 	</div>
-	<app-custom-diagram *ngIf="showDiagram" [diagramNodeData]="nodeData" [diagramLinkData]="linkData"></app-custom-diagram>
 </div>
