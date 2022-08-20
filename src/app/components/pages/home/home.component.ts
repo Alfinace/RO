@@ -70,9 +70,7 @@ export class HomeComponent implements OnInit {
       this.columns.push(i);
     }    
     this.initialize();
-    this.valeurAleatoire();
     console.log(this.matrice);    
-    console.log([...this.data]);    
     console.log(this.R);    
     console.log(this.B);    
   }
@@ -165,6 +163,7 @@ export class HomeComponent implements OnInit {
       tbody.appendChild(tr)
     }
     let trLast = document.createElement('tr');
+    trLast.appendChild(document.createElement('td'))
     for (let i = 0; i < this.B.length; i++) {
       let tdLast = document.createElement('td');
       tdLast.setAttribute('style','padding: 15px;width: 20px;text-align:center')
@@ -203,8 +202,6 @@ export class HomeComponent implements OnInit {
 
     this.linkData = tmpLinkData;
     this.showDiagram = true;
-    console.log(this.matrice);
-    console.log(this.data);
     this.findVxAndVy();
   }
   public onInput(event : any){
@@ -216,7 +213,6 @@ export class HomeComponent implements OnInit {
   }
 
   public onInputColumn(event : any){
-    console.log(event);
     
     let el = event.target;
     let idElementToArray =  el.getAttribute('id').split('x');
@@ -224,12 +220,11 @@ export class HomeComponent implements OnInit {
     this.B[colIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
   }
   public onInputLine(event : any){
-    console.log(event);
-
     let el = event.target;
     let idElementToArray =  el.getAttribute('id').split('x');
     let lineIndex = parseInt(idElementToArray[1]);    
-    this.R[lineIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.vaslue);
+    this.R[lineIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
+    
   }
 
 
@@ -260,7 +255,10 @@ export class HomeComponent implements OnInit {
           }
         }
       }
-      if (breakerCompte == 100000) {
+      if (breakerCompte == 1000000) {
+        console.log(this.Vx);
+        console.log(this.Vy);
+        
         break
       }
       breakerCompte++
