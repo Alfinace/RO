@@ -3,11 +3,10 @@ table{
 	font-family: Verdana, Geneva, Tahoma, sans-serif;
 	input{
 		border: none;
-		background: rgb(212, 212, 212);
+		background: white;
 		color: black;
-		border-radius: 2px;
-		max-width: 50px;
-		height:30px;
+		max-width: 40px;
+		height:40px;
 		font-size: 15px;
 		text-align: center;
 		outline: none;
@@ -25,6 +24,10 @@ table{
 }
 .principale-data, .exp, .des{
 	margin-top: 20px;
+	border-collapse: collapse;
+	tr td{
+		border: 1px solid;
+	}
 }
 .alfa{
 	margin-top: 50px;
@@ -47,6 +50,7 @@ table{
 form{
 	font-family: cursive;
 }
+
 .content{
 	display: flex;
 	flex-direction: column;

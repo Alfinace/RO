@@ -23,7 +23,7 @@ export class CustomDiagramComponent {
     const dia = $(go.Diagram, {
       "ExternalObjectsDropped": (e)=> {console.log(e);
       },
-      // "draggingTool.isEnabled": false,
+      "draggingTool.isEnabled": true,
       'undoManager.isEnabled': true, // must be set to allow for model change listening
       // 'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
       model: $(go.GraphLinksModel,
@@ -40,10 +40,10 @@ export class CustomDiagramComponent {
       $(go.Shape,
         {
           figure:'Circle',
-          width: 50, height: 50, fill: "#33ceac",
-          stroke:'white',
+          width: 50, height: 50, fill: "transparent",
+          stroke:'black',
           portId: "", cursor: "pointer",
-          strokeWidth: 0,
+          strokeWidth: 1,
           fromLinkable: true,
           fromLinkableSelfNode: false, fromLinkableDuplicates: false,  // optional
           toLinkable: true,
@@ -67,7 +67,7 @@ export class CustomDiagramComponent {
           $(go.Shape,  { isPanelMain: true, stroke: "black", strokeWidth: 1 },),
           $(go.Shape, { toArrow: "OpenTriangle", stroke: "black" }),
           $(go.TextBlock, {
-            stroke:"#ff623e",
+            stroke:"black",
             font: '11pt serif',
             background: "white",
             overflow: go.TextBlock.OverflowEllipsis,

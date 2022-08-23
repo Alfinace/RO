@@ -46,8 +46,9 @@
 				</div>
 				<button class="btn-a" *ngIf="lines.length > 0" (click)="onCalculate()">Calculate</button>
 			</div>
-			<div #step></div>
-			<app-custom-diagram style="transform: scale(0.7);" *ngIf="showDiagram" [diagramNodeData]="nodeData" [diagramLinkData]="linkData"></app-custom-diagram>
+			<div #step>
+				<app-custom-diagram  *ngIf="showDiagram" [diagramNodeData]="nodeData" [diagramLinkData]="linkData"></app-custom-diagram>
+			</div>
 		</div>
 	</div>
 </div>
