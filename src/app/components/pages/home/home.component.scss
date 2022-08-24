@@ -12,6 +12,10 @@ table{
 		outline: none;
 	}
 }
+input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        display: none;
+      }
 .flex{
 	display: flex;
 }
@@ -24,6 +28,11 @@ table{
 }
 .principale-data, .exp, .des{
 	margin-top: 20px;
+	
+}
+.principale-data{
+	thead{
+	}
 	border-collapse: collapse;
 	tr td{
 		border: 1px solid;
@@ -31,20 +40,19 @@ table{
 }
 .alfa{
 	margin-top: 50px;
-	color: #808080;
 	margin-right: 15px;
 }
 .des{
 	margin-left: 20px;
-	margin-top: 45px;
+	margin-top: 40px;
 	input{
-		background: #47706582;
+		background: #dbdbdb82;
 	}
 }
 .exp{
 	margin-left: 30px;
 	input{
-		background: #47706582;
+		background: #dbdbdb82;
 	}
 }
 form{

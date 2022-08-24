@@ -17,6 +17,7 @@ import { NodeModel } from 'src/app/models/model.node';
 })
 export class HomeComponent implements OnInit {
   @ViewChild('step') step: ElementRef;
+  @ViewChild('step2') step2: ElementRef;
   public matriceForm: FormGroup;
   public showDiagram: boolean = false;
   public nodeData: Array<NodeModel> = [];
@@ -179,6 +180,10 @@ export class HomeComponent implements OnInit {
         tr.appendChild(td);
       }
       let tdLast = document.createElement('td');
+      tdLast.setAttribute(
+        'style',
+        'padding: 15px'
+      );
       tdLast.innerText = this.R[i].toString();
       tr.appendChild(tdLast);
       tbody.appendChild(tr);
@@ -189,7 +194,7 @@ export class HomeComponent implements OnInit {
       let tdLast = document.createElement('td');
       tdLast.setAttribute(
         'style',
-        'padding: 15px;width: 20px;text-align:center'
+        'padding: 15px'
       );
       tdLast.innerText = this.B[i].toString();
       trLast.appendChild(tdLast);
@@ -205,6 +210,7 @@ export class HomeComponent implements OnInit {
     var z: number = 0;
     this.max = { value: 0, x: null, y: null };
     var tmpLinkData: Array<linkModel> = [];
+    let output = 'Z = '
     for (let i = 0; i < this.data.length; i++) {
       for (let j = 0; j < this.data[i].length; j++) {
         const value = this.data[i][j];
@@ -216,13 +222,18 @@ export class HomeComponent implements OnInit {
             text: this.matrice[i][j].toString(),
           });
           z += value * this.matrice[i][j];
+          output+=`${value}*${this.matrice[i][j]} + `
           if (this.max.value < this.matrice[i][j]) {
             this.max = { value: this.matrice[i][j], x: i, y: j };
           }
         }
       }
     }
-
+    output= output.slice(0,-2)
+    output+=` = ${z}`
+    let zHtml = document.createElement("div");
+    zHtml.innerText = output
+    this.step2.nativeElement.appendChild(zHtml)
     this.linkData = tmpLinkData;
     this.showDiagram = true;
     this.findVxAndVy();
@@ -283,8 +294,6 @@ export class HomeComponent implements OnInit {
         }
       }
     }
-    console.log('Vx', this.Vx);
-    console.log('Vy', this.Vy);
     this.marquage();
   }
 
@@ -323,6 +332,7 @@ export class HomeComponent implements OnInit {
               value: v,
             });
             let li = document.createElement("li")
+            li.setAttribute('style','margin: 10px;font-size: 18px;')
             if (v < 0) {
               li.setAttribute('style','color :red');
             }
@@ -332,15 +342,15 @@ export class HomeComponent implements OnInit {
       }
       let lres = document.createElement("div");
       lres.appendChild(ul)
-      this.step.nativeElement.appendChild(lres)
+      this.step2.nativeElement.appendChild(lres)
       lamdas = lamdas.filter((lamda) => {
         return lamda.value < 0;
       });
       
     }
     if (lamdas.length > 0) {
-      for (let i = 0; i < lamdas.length; i++) {
-        var start = { ...lamdas[i]};
+      for (let k = 0; k < lamdas.length; k++) {
+        var start = { ...lamdas[k]};
         start.value = '-';
         var path = [];
         var line_blocked = [];
@@ -348,7 +358,7 @@ export class HomeComponent implements OnInit {
         for (let i = 0; i < this.number_column; i++) {
           let count = 0;
           for (let j = 0; j < this.number_line; j++) {
-            if (!isNaN(this.data[j][i]) && i != start.x) {
+            if (!isNaN(this.data[j][i]) || start.y == i) {
               count++
             }
           }
@@ -360,7 +370,7 @@ export class HomeComponent implements OnInit {
         for (let i = 0; i < this.number_line; i++) {
           let count = 0;
           for (let j = 0; j < this.number_column; j++) {
-            if (!isNaN(this.data[i][j]) && i != start.y) {
+            if (!isNaN(this.data[i][j]) || start.x == i) {
               count++
             }
           }
@@ -370,7 +380,12 @@ export class HomeComponent implements OnInit {
 
         }
         path.push(start);
-        console.log(this.find(path,line_blocked,col_blocked));
+        // let da = this.find(path,line_blocked,col_blocked));
+        let truePath = []
+        for (let i = this.find(path,line_blocked,col_blocked).length - 1; i >= 0 ; i--) {
+          truePath.push({...path[i]})
+        }
+        console.log(truePath);
       }
     }
   }
@@ -381,31 +396,36 @@ export class HomeComponent implements OnInit {
   find(path: any[],line_blocked: number[],col_blocked: number[]){
     var ok = false;
     var c = 0;
+    var backListCol: number[] = [];
+    var backListLine: number[] = [];
     while (!ok) {
       for (let i = 0; i < this.number_column; i++) {
-        
-        if (!col_blocked.includes(i) && path[0].y != i && !isNaN(this.data[path[0].x][i])) {
-          path.unshift({x:path[0].x,y:i,value:this.data[path[0].x][i]});
-        break
+        if (!isNaN(this.data[path[0].x][i])) {
+          // if (path[0].x == i) {
+          //   path.splice(0, 1)
+          // }
+          if (!col_blocked.includes(i) && path[0].y != i ) {
+            path.unshift({x:path[0].x,y:i,value:this.data[path[0].x][i]});
+          break
+          }
         }
       }
-      if (path[path.length - 1].y == path[0].y && path.length > 0
-        ) {
+      if (path[path.length - 1].y == path[0].y && path.length > 3) {
         break
       }
       for (let i = 0; i < this.number_line; i++) {
-        console.log();
-        
-        if (!line_blocked.includes(i) && path[0].x != i && !isNaN(this.data[i][path[0].y])) {
-          path.unshift({x:i,y:path[0].y,value:this.data[i][path[0].y]});
-        break
+        if (!isNaN(this.data[i][path[0].y])) {
+          if (!line_blocked.includes(i) && path[0].x != i) {
+            path.unshift({x:i,y:path[0].y,value:this.data[i][path[0].y]});
+          break
+          }
         }
       }
-      if (path[path.length - 1].x == path[0].x && path.length > 0
+      if (path[path.length - 1].x == path[0].x && path.length > 3
         ) {
         break
       }
-      if (c == 3) {
+      if (c == 100) {
         break
       }
       c++

@@ -47,8 +47,10 @@
 				<button class="btn-a" *ngIf="lines.length > 0" (click)="onCalculate()">Calculate</button>
 			</div>
 			<div #step>
-				<app-custom-diagram  *ngIf="showDiagram" [diagramNodeData]="nodeData" [diagramLinkData]="linkData"></app-custom-diagram>
 			</div>
+		</div>
+		<div #step2 style="display: flex;flex-wrap: wrap;">
+			<app-custom-diagram  *ngIf="showDiagram" [diagramNodeData]="nodeData" [diagramLinkData]="linkData"></app-custom-diagram>
 		</div>
 	</div>
 </div>
