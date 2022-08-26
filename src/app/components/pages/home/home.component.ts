@@ -380,12 +380,20 @@ export class HomeComponent implements OnInit {
 
         }
         path.push(start);
-        // let da = this.find(path,line_blocked,col_blocked));
-        let truePath = []
-        for (let i = this.find(path,line_blocked,col_blocked).length - 1; i >= 0 ; i--) {
-          truePath.push({...path[i]})
+        let res = this.find(path,line_blocked,col_blocked);
+        for (let index = 1; index < res.length; index++) {
+          const element = res[index];
+          if (index%2 == 0) {
+            if (res[index - 1].y != element.y) {
+              res.splice(index - 1, 1)
+            }
+          } else {
+            if (res[index - 1].x != element.x ) {
+              res.splice(index - 1, 1)
+            }
+          }
         }
-        console.log(truePath);
+        console.log(res);
       }
     }
   }
