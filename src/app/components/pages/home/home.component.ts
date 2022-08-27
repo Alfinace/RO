@@ -37,7 +37,7 @@ export class HomeComponent implements OnInit {
     [9, 12, 9, 6, 9, 10],
     [7, 3, 7, 7, 5, 5],
     [6, 5, 9, 11, 3, 11],
-    [6, 8, 11, 2, 2, 10],
+    [6, 8, 11, 2, 2, 20],
   ];
   public data: any[][];
   public B: number[] = [40, 30, 70, 20, 40, 20];
@@ -92,9 +92,9 @@ export class HomeComponent implements OnInit {
       this.columns.push(i);
     }
     this.initialize();
-    console.log(this.matrice);
-    console.log(this.R);
-    console.log(this.B);
+    // console.log(this.matrice);
+    // console.log(this.R);
+    // console.log(this.B);
   }
   public onCalculate() {
     var i = 0;
@@ -234,8 +234,13 @@ export class HomeComponent implements OnInit {
     this.step2.nativeElement.appendChild(zHtml);
     this.linkData = tmpLinkData;
     this.showDiagram = true;
+    var p = 0;
     while (!this.vita) {
       this.findVxAndVy();
+      if (p > 10) {
+        break
+      }
+      p++
     }
   }
   public onInput(event: any) {
@@ -263,7 +268,6 @@ export class HomeComponent implements OnInit {
 
   findVxAndVy() {
     var { x, y } = this.max;
-    console.log(this.max);
     var breakerCompte = 0;
     //mandroso
     while (this.Vx.includes(NaN) || this.Vy.includes(NaN)) {
@@ -349,31 +353,32 @@ export class HomeComponent implements OnInit {
         return lamda.value < 0;
       });
     }
-    let div = document.createElement('div');
-    ul = document.createElement('ul');
+    // let div = document.createElement('div');
+    // ul = document.createElement('ul');
     if (lamdas.length === 0) {
       this.vita = true;
-      return
     }
-    for (let i = 0; i < lamdas.length; i++) {
-      const element = lamdas[i];
-      let li = document.createElement('li');
-      li.setAttribute('style', 'margin: 10px;font-size: 18px;');
-      li.innerText = `λ(${this.alfa[element.x]}, ${element.y + 1}) = ${
-        this.Vx[element.x]
-      } + ${this.matrice[element.x][element.y]} - ${this.Vy[element.y]}`;
-      ul.appendChild(li);
-    }
-    div.appendChild(ul);
-    this.step3.nativeElement.appendChild(div);
+    // for (let i = 0; i < lamdas.length; i++) {
+    //   const element = lamdas[i];
+      // let li = document.createElement('li');
+      // li.setAttribute('style', 'margin: 10px;font-size: 18px;');
+      // li.innerText = `λ(${this.alfa[element.x]}, ${element.y + 1}) = ${
+      //   this.Vx[element.x]
+      // } + ${this.matrice[element.x][element.y]} - ${this.Vy[element.y]}`;
+      // ul.appendChild(li);
+    // }
+    // div.appendChild(ul);
+    // this.step3.nativeElement.appendChild(div);
+    
     if (lamdas.length > 0) {
       var gains: { x: number; y: number; value: number; min?: any }[] = [];
+      var paths = [];
       for (let k = 0; k < lamdas.length; k++) {
         var start = { ...lamdas[k] };
         start.value = '-';
-        var path = [];
-        var line_blocked = [];
-        var col_blocked = [];
+        let path = [];
+        let line_blocked = [];
+        let col_blocked = [];
         for (let i = 0; i < this.number_column; i++) {
           let count = 0;
           for (let j = 0; j < this.number_line; j++) {
@@ -381,7 +386,7 @@ export class HomeComponent implements OnInit {
               count++;
             }
           }
-          if (count < 2) {
+          if (count < 2) { 
             col_blocked.push(i);
           }
         }
@@ -410,6 +415,7 @@ export class HomeComponent implements OnInit {
             }
           }
         }
+        paths.push(res)
         var table = document.createElement('table');
         table.setAttribute('style', 'border-collapse: collapse');
         var thead = document.createElement('thead');
@@ -444,7 +450,7 @@ export class HomeComponent implements OnInit {
             span.innerText = this.data[i][j];
             td.appendChild(span);
             let spanSign = document.createElement('span');
-            let indexPath = res.findIndex((r) => r.x == i && r.y == j);
+            let indexPath = res.findIndex((r) => r.x == i && r.y == j);            
             if (indexPath != -1) {
               spanSign.setAttribute(
                 'style',
@@ -493,7 +499,7 @@ export class HomeComponent implements OnInit {
           tr.appendChild(tdLast);
           tbody.appendChild(tr);
         }
-        if (totalMoins >= totalPlus) {
+        if (totalMoins > totalPlus) {
           gains.push({
             ...res[res.length - 1],
             min: minMoins,
@@ -516,62 +522,56 @@ export class HomeComponent implements OnInit {
         }
         tbody.appendChild(trLast);
         table.appendChild(tbody);
-        let container = document.createElement('div');
-        let gain = document.createElement('div');
-        let titleGain = document.createElement('h3');
-        titleGain.innerText = `
-      Gains obtenus par l’utilisation des relations de coûts marginaux négatifs
-      `;
         let block = document.createElement('div');
-        let title = document.createElement('h3');
-        title.setAttribute(
-          'style',
-          'text-align: center, color: red; text-decoration: underline'
-        );
-        title.innerText = `${k + 1}.  λ(${this.alfa[start.x]}, ${
-          start.y + 1
-        }) = ${this.Vx[start.x]} + ${this.matrice[start.x][start.y]} - ${
-          this.Vy[start.y]
-        }`;
         block.setAttribute(
           'style',
           'display: flex; justify-content: space-arround'
         );
-
-        var minGain = gains[0];
-        for (let i = 1; i < gains.length; i++) {
-          if (gains[i].value < minGain.value) {
-            minGain = gains[i];
-          }
-        }
-        for (let i = res.length - 1; i >= 0; i--) {
-          const r = res[i];
-          if (i == res.length - 1) {
-            this.data[r.x][r.y] = minGain.min;
-          } else if (i % 2 == 0) {
-            if (this.data[r.x][r.y] == minGain.min) {
-              this.data[r.x][r.y] = '-';
-            } else {
-              this.data[r.x][r.y] = this.data[r.x][r.y] - minGain.min;
-            }
-          } else {
-            this.data[r.x][r.y] = this.data[r.x][r.y] + minGain.min;
-          }
-        }
-        console.log(minGain);
-        gain.appendChild(titleGain);
-        let zElement = document.createElement('p');
-        zElement.innerText = ` Z = ${this.ZValue} - ${minGain.value} = ${
-          this.ZValue - minGain.value
-        };`;
-        gain.appendChild(titleGain);
-        gain.appendChild(zElement);
-        this.ZValue = this.ZValue - minGain.value;
-        container.appendChild(title);
         block.appendChild(table);
-        block.appendChild(gain);
+        let container = document.createElement('div');
         container.appendChild(block);
         this.step3.nativeElement.appendChild(container);
+      }
+      var minGain = gains[0];
+      var index = 0;
+      for (let i = 1; i < gains.length; i++) {
+        if (gains[i].value < minGain.value) {
+          minGain = gains[i];
+        }
+      }
+      for (let i = paths[index].length - 1; i >= 0; i--) {
+        const r = paths[index][i];
+        if (i == paths[index].length - 1) {
+          this.data[r.x][r.y] = minGain.min;
+        } else if (i % 2 == 0) {
+          if (this.data[r.x][r.y] == minGain.min) {
+            this.data[r.x][r.y] = '-';
+          } else {
+            this.data[r.x][r.y] = this.data[r.x][r.y] - minGain.min;
+          }
+        } else {
+          this.data[r.x][r.y] = this.data[r.x][r.y] + minGain.min;
+        }
+      }
+      // console.log([...this.data]);
+      // console.log(paths);
+      // console.log(minGain);
+      
+      let titleGain = document.createElement('h3');
+        titleGain.innerText = `
+      Gains obtenus par l’utilisation des relations de coûts marginaux négatifs
+      `;
+      let zElement = document.createElement('p');
+      zElement.innerText = ` Z = ${this.ZValue} - ${minGain.value} = ${
+        this.ZValue - minGain.value
+      };`;
+      let gain = document.createElement('div');
+      gain.appendChild(titleGain);
+      gain.appendChild(zElement);
+      this.ZValue = this.ZValue - minGain.value;
+      if (this.ZValue == 1200) {
+        
+        this.step3.nativeElement.appendChild(gain);
       }
     }
   }
@@ -579,35 +579,49 @@ export class HomeComponent implements OnInit {
   find(path: any[], line_blocked: number[], col_blocked: number[]) {
     var ok = false;
     var c = 0;
-    var backListCol: number[] = [];
-    var backListLine: number[] = [];
+   
     while (!ok) {
+      console.log(col_blocked);
+      
+      if (col_blocked.length > 7) {
+        break
+      }
       for (let i = 0; i < this.number_column; i++) {
         if (!isNaN(this.data[path[0].x][i])) {
-          // if (path[0].x == i) {
-          //   path.splice(0, 1)
-          // }
           if (!col_blocked.includes(i) && path[0].y != i) {
-            path.unshift({
-              x: path[0].x,
-              y: i,
-              value: this.data[path[0].x][i],
-            });
+            let index = path.findIndex(p => p.y == i && p.x == path[0].x && p.value == this.data[path[0].x][i])
+            // if (index != -1) {
+              path.unshift({
+                x: path[0].x,
+                y: i,
+                value: this.data[path[0].x][i],
+              });
+            // }else{
+            //   line_blocked.push(path[0].x)
+            //   path.splice(0,path.length - 2)
+            // }
             break;
           }
         }
       }
       if (path[path.length - 1].y == path[0].y && path.length > 3) {
+        
         break;
       }
       for (let i = 0; i < this.number_line; i++) {
         if (!isNaN(this.data[i][path[0].y])) {
           if (!line_blocked.includes(i) && path[0].x != i) {
-            path.unshift({
-              x: i,
-              y: path[0].y,
-              value: this.data[i][path[0].y],
-            });
+            let index = path.findIndex(p => p.x == i && p.y == path[0].y && p.value == this.data[i][path[0].y])
+            if (index == -1) {
+              path.unshift({
+                x: i,
+                y: path[0].y,
+                value: this.data[i][path[0].y],
+              });
+            }else{
+              col_blocked.push(path[0].y)
+              path.splice(0,path.length - 2)
+            }
             break;
           }
         }
@@ -615,10 +629,7 @@ export class HomeComponent implements OnInit {
       if (path[path.length - 1].x == path[0].x && path.length > 3) {
         break;
       }
-      if (c == 100) {
-        break;
-      }
-      c++;
+      
     }
     return path;
   }
