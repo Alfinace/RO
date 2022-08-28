@@ -59,7 +59,7 @@ export class CustomDiagramComponent {
           { reshapable: true,
             resegmentable: true,
             selectable: false,      // links cannot be selected by the user
-            curve: go.Link.Bezier,
+            // curve: go.Link.Bezier,
           },
           // { routing: go.Link.Orthogonal },  // optional, but need to keep LinkingTool.temporaryLink in sync, above
           { adjusting: go.Link.Bezier },  // optional

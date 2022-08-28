@@ -44,6 +44,8 @@ export class HomeComponent implements OnInit {
   public R: number[] = [50, 60, 20, 90];
   ZValue: number;
   vita: boolean = false;
+  line_blocked: number[];
+  col_blocked: number[];
   constructor(
     private formBuilder: FormBuilder,
     private changeDetectorRef: ChangeDetectorRef
@@ -92,9 +94,9 @@ export class HomeComponent implements OnInit {
       this.columns.push(i);
     }
     this.initialize();
-    // console.log(this.matrice);
-    // console.log(this.R);
-    // console.log(this.B);
+    console.log(this.matrice);
+    console.log(this.R);
+    console.log(this.B);
   }
   public onCalculate() {
     var i = 0;
@@ -533,12 +535,15 @@ export class HomeComponent implements OnInit {
         this.step3.nativeElement.appendChild(container);
       }
       var minGain = gains[0];
+      console.log('gains',gains);
+      
       var index = 0;
       for (let i = 1; i < gains.length; i++) {
-        if (gains[i].value < minGain.value) {
+        if (gains[i].value <= minGain.value) {
           minGain = gains[i];
         }
       }
+      // console.log(gains);
       for (let i = paths[index].length - 1; i >= 0; i--) {
         const r = paths[index][i];
         if (i == paths[index].length - 1) {
@@ -569,26 +574,20 @@ export class HomeComponent implements OnInit {
       gain.appendChild(titleGain);
       gain.appendChild(zElement);
       this.ZValue = this.ZValue - minGain.value;
-      if (this.ZValue == 1200) {
-        
-        this.step3.nativeElement.appendChild(gain);
-      }
+      this.step3.nativeElement.appendChild(gain);
     }
   }
 
   find(path: any[], line_blocked: number[], col_blocked: number[]) {
     var ok = false;
     var c = 0;
-   
+   this.line_blocked  = line_blocked;
+   this.col_blocked  = col_blocked;
     while (!ok) {
-      console.log(col_blocked);
-      
-      if (col_blocked.length > 7) {
-        break
-      }
+  
       for (let i = 0; i < this.number_column; i++) {
         if (!isNaN(this.data[path[0].x][i])) {
-          if (!col_blocked.includes(i) && path[0].y != i) {
+          if (!this.col_blocked.includes(i) && path[0].y != i) {
             let index = path.findIndex(p => p.y == i && p.x == path[0].x && p.value == this.data[path[0].x][i])
             // if (index != -1) {
               path.unshift({
@@ -610,8 +609,14 @@ export class HomeComponent implements OnInit {
       }
       for (let i = 0; i < this.number_line; i++) {
         if (!isNaN(this.data[i][path[0].y])) {
-          if (!line_blocked.includes(i) && path[0].x != i) {
+          if (!this.line_blocked.includes(i) && path[0].x != i) {
             let index = path.findIndex(p => p.x == i && p.y == path[0].y && p.value == this.data[i][path[0].y])
+            if (path[path.length - 1].x ==2 && path[path.length - 1].y == 5) {
+              console.log(...this.col_blocked);
+              
+              console.log(...path);
+              
+            }
             if (index == -1) {
               path.unshift({
                 x: i,
@@ -619,7 +624,14 @@ export class HomeComponent implements OnInit {
                 value: this.data[i][path[0].y],
               });
             }else{
-              col_blocked.push(path[0].y)
+              if (path.length%2 != 0) {
+                this.col_blocked.push(path[0].y)
+              }else{
+                this.col_blocked.push(path[0].y + 1)
+              }
+              // if (path[path.length - 1].x ==2 && path[path.length - 1].y == 5) {
+              //   this.col_blocked.push(2)
+              // }
               path.splice(0,path.length - 2)
             }
             break;
