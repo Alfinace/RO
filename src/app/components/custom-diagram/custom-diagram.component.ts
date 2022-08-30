@@ -75,6 +75,8 @@ export class CustomDiagramComponent {
             margin: 20,
           },
             new go.Binding("text","text")));
+            
+            
     return dia;
   }
   

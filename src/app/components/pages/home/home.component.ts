@@ -29,19 +29,20 @@ export class HomeComponent implements OnInit {
   public lines: Array<number> = [];
   public columns: Array<number> = [];
   public max: any;
+  public count = 0;
   public Vx: Array<any> = [];
   public Vy: Array<any> = [];
   public alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   public nodeList: NodeListOf<Element>;
   public matrice: any[][] = [
-    [9, 12, 9, 6, 9, 10],
-    [7, 3, 7, 7, 5, 5],
-    [6, 5, 9, 11, 3, 11],
-    [6, 8, 11, 2, 2, 20],
+    [21, 11, 84, 49, 13],
+    [27, 52, 43, 29, 42],
+    [11, 47, 14, 80, 93],
+    [52, 14, 76, 74, 54],
   ];
   public data: any[][];
-  public B: number[] = [40, 30, 70, 20, 40, 20];
-  public R: number[] = [50, 60, 20, 90];
+  public B: number[] = [800, 439, 50, 790, 1470];
+  public R: number[] = [896, 782, 943, 928];
   ZValue: number;
   vita: boolean = false;
   line_blocked: number[];
@@ -238,10 +239,32 @@ export class HomeComponent implements OnInit {
     this.showDiagram = true;
     var p = 0;
     while (!this.vita) {
-      this.findVxAndVy();
-      if (p > 10) {
-        break
+      if (p > 0) {
+        this.max = { value: 0, x: null, y: null };
+        var tmpLinkData: Array<linkModel> = [];
+        for (let i = 0; i < this.data.length; i++) {
+          for (let j = 0; j < this.data[i].length; j++) {
+            const value = this.data[i][j];
+    
+            if (!isNaN(value)) {
+              tmpLinkData.push({
+                from: i,
+                to: this.number_line + j,
+                text: this.matrice[i][j].toString(),
+              });
+              if (this.max.value < this.matrice[i][j]) {
+                this.max = { value: this.matrice[i][j], x: i, y: j };
+              }
+            }
+          }
+        }
+        this.linkData = tmpLinkData
       }
+      this.findVxAndVy();
+      
+      // if (this.count > 10) {
+      //   break
+      // }
       p++
     }
   }
@@ -270,22 +293,25 @@ export class HomeComponent implements OnInit {
 
   findVxAndVy() {
     var { x, y } = this.max;
-    var breakerCompte = 0;
-    //mandroso
+    console.log(this.max);
+    
+    this.Vx = Array(this.number_line).fill(NaN);
+    this.Vy = Array(this.number_column).fill(NaN);
+    let a = 0;   
     while (this.Vx.includes(NaN) || this.Vy.includes(NaN)) {
       for (let i = 0; i < this.number_line; i++) {
         for (let j = 0; j < this.number_column; j++) {
           let value = this.data[i][j];
           if (!isNaN(value) && !isNaN(this.Vy[j])) {
-            if (this.Vy[j] - this.matrice[i][j] >= 0) {
-              this.Vx[i] = this.Vy[j] - this.matrice[i][j];
-            }
+            this.Vx[i] = this.Vy[j] - this.matrice[i][j];
           } else if (i == x && !isNaN(value)) {
             if (j == y && isNaN(this.Vx[i])) {
               this.Vx[i] = 0;
               this.Vy[j] = this.max.value;
-            } else {
+  
+            } else if (!isNaN(this.Vx[i])){
               this.Vy[j] = this.matrice[i][j] + this.Vx[i];
+              
             }
           } else {
             if (
@@ -293,14 +319,29 @@ export class HomeComponent implements OnInit {
               !isNaN(this.Vx[i]) &&
               i != x &&
               isNaN(this.Vy[j])
-            ) {
+              ) { 
               this.Vy[j] = this.matrice[i][j] + this.Vx[i];
             }
           }
         }
       }
+      if (this.count == 3 && a == 2) {
+        break
+      }
+     a++
     }
-    this.marquage();
+    console.log(...this.data);
+    console.log(this.Vx);
+    console.log(this.Vy);
+    let indexNy = this.Vx.findIndex((x => x < 0))
+    let indexPy = this.Vy.findIndex((y => y < 0))
+    if (indexPy == -1 || indexNy == -1) {
+      this.marquage();
+    }else{
+      this.vita = true
+    }
+
+    this.count++
   }
 
   valeurAleatoire() {
@@ -374,7 +415,7 @@ export class HomeComponent implements OnInit {
     
     if (lamdas.length > 0) {
       var gains: { x: number; y: number; value: number; min?: any }[] = [];
-      var paths = [];
+      var paths : any[] = [];
       for (let k = 0; k < lamdas.length; k++) {
         var start = { ...lamdas[k] };
         start.value = '-';
@@ -452,6 +493,8 @@ export class HomeComponent implements OnInit {
             span.innerText = this.data[i][j];
             td.appendChild(span);
             let spanSign = document.createElement('span');
+            
+            
             let indexPath = res.findIndex((r) => r.x == i && r.y == j);            
             if (indexPath != -1) {
               spanSign.setAttribute(
@@ -501,13 +544,14 @@ export class HomeComponent implements OnInit {
           tr.appendChild(tdLast);
           tbody.appendChild(tr);
         }
+        
         if (totalMoins > totalPlus) {
           gains.push({
             ...res[res.length - 1],
             min: minMoins,
             value: (totalMoins - totalPlus) * minMoins,
           });
-        } else {
+        } if (totalMoins < totalPlus) {
           gains.push({
             ...res[res.length - 1],
             min: minPlus,
@@ -530,20 +574,18 @@ export class HomeComponent implements OnInit {
           'display: flex; justify-content: space-arround'
         );
         block.appendChild(table);
+        block.append('minMoins'+minMoins);
         let container = document.createElement('div');
         container.appendChild(block);
         this.step3.nativeElement.appendChild(container);
       }
       var minGain = gains[0];
-      console.log('gains',gains);
-      
       var index = 0;
-      for (let i = 1; i < gains.length; i++) {
-        if (gains[i].value <= minGain.value) {
+      for (let i = 1; i < gains.length -1; i++) {
+        if (gains[i].value < minGain.value) {
           minGain = gains[i];
         }
       }
-      // console.log(gains);
       for (let i = paths[index].length - 1; i >= 0; i--) {
         const r = paths[index][i];
         if (i == paths[index].length - 1) {
@@ -558,9 +600,6 @@ export class HomeComponent implements OnInit {
           this.data[r.x][r.y] = this.data[r.x][r.y] + minGain.min;
         }
       }
-      // console.log([...this.data]);
-      // console.log(paths);
-      // console.log(minGain);
       
       let titleGain = document.createElement('h3');
         titleGain.innerText = `
@@ -611,12 +650,6 @@ export class HomeComponent implements OnInit {
         if (!isNaN(this.data[i][path[0].y])) {
           if (!this.line_blocked.includes(i) && path[0].x != i) {
             let index = path.findIndex(p => p.x == i && p.y == path[0].y && p.value == this.data[i][path[0].y])
-            if (path[path.length - 1].x ==2 && path[path.length - 1].y == 5) {
-              console.log(...this.col_blocked);
-              
-              console.log(...path);
-              
-            }
             if (index == -1) {
               path.unshift({
                 x: i,
