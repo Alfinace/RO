@@ -58,7 +58,7 @@ export class HomeComponent implements OnInit {
   }
   private initialize() {
     this.data = [];
-    // this.matrice = [];
+    this.matrice = [];
     this.nodeData = [];
     var space = 0;
     for (let i = 0; i < this.number_line; i++) {
@@ -68,7 +68,7 @@ export class HomeComponent implements OnInit {
         loc: '100 ' + (100 + space).toString(),
       });
       this.data.push(Array(this.number_column).fill(0));
-      // this.matrice.push(Array(this.number_column).fill(0));
+      this.matrice.push(Array(this.number_column).fill(0));
       space += 70;
     }
     space = 0;
@@ -80,8 +80,8 @@ export class HomeComponent implements OnInit {
       });
       space += 70;
     }
-    // this.R = Array(this.number_line).fill(0);
-    // this.B = Array(this.number_column).fill(0);
+    this.R = Array(this.number_line).fill(0);
+    this.B = Array(this.number_column).fill(0);
   }
   public onGenarate() {
     this.columns = [];
@@ -237,6 +237,8 @@ export class HomeComponent implements OnInit {
     this.step2.nativeElement.appendChild(zHtml);
     this.linkData = tmpLinkData;
     this.showDiagram = true;
+    console.log(this.checkGenerateCase());
+    return
     var p = 0;
     while (!this.vita) {
       if (p > 0) {
@@ -396,22 +398,9 @@ export class HomeComponent implements OnInit {
         return lamda.value < 0;
       });
     }
-    // let div = document.createElement('div');
-    // ul = document.createElement('ul');
     if (lamdas.length === 0) {
       this.vita = true;
     }
-    // for (let i = 0; i < lamdas.length; i++) {
-    //   const element = lamdas[i];
-      // let li = document.createElement('li');
-      // li.setAttribute('style', 'margin: 10px;font-size: 18px;');
-      // li.innerText = `λ(${this.alfa[element.x]}, ${element.y + 1}) = ${
-      //   this.Vx[element.x]
-      // } + ${this.matrice[element.x][element.y]} - ${this.Vy[element.y]}`;
-      // ul.appendChild(li);
-    // }
-    // div.appendChild(ul);
-    // this.step3.nativeElement.appendChild(div);
     
     if (lamdas.length > 0) {
       var gains: { x: number; y: number; value: number; min?: any }[] = [];
@@ -623,7 +612,6 @@ export class HomeComponent implements OnInit {
    this.line_blocked  = line_blocked;
    this.col_blocked  = col_blocked;
     while (!ok) {
-  
       for (let i = 0; i < this.number_column; i++) {
         if (!isNaN(this.data[path[0].x][i])) {
           if (!this.col_blocked.includes(i) && path[0].y != i) {
@@ -634,18 +622,11 @@ export class HomeComponent implements OnInit {
                 y: i,
                 value: this.data[path[0].x][i],
               });
-            // }else{
-            //   line_blocked.push(path[0].x)
-            //   path.splice(0,path.length - 2)
-            // }
             break;
           }
         }
       }
-      if (path[path.length - 1].y == path[0].y && path.length > 3) {
-        
-        break;
-      }
+      if (path[path.length - 1].y == path[0].y && path.length > 3) { break;}
       for (let i = 0; i < this.number_line; i++) {
         if (!isNaN(this.data[i][path[0].y])) {
           if (!this.line_blocked.includes(i) && path[0].x != i) {
@@ -662,20 +643,40 @@ export class HomeComponent implements OnInit {
               }else{
                 this.col_blocked.push(path[0].y + 1)
               }
-              // if (path[path.length - 1].x ==2 && path[path.length - 1].y == 5) {
-              //   this.col_blocked.push(2)
-              // }
+             
               path.splice(0,path.length - 2)
             }
             break;
           }
         }
       }
-      if (path[path.length - 1].x == path[0].x && path.length > 3) {
-        break;
-      }
-      
+      if (path[path.length - 1].x == path[0].x && path.length > 3) {break;}
     }
     return path;
+  }
+
+  checkGenerateCase(){
+    var isoleLine: any[] = [];
+    var isoleCol :any[] = [];
+    for (let i = 0; i < this.data.length; i++) {
+     let d = this.data[i].filter(d => !isNaN(d))
+     if (d.length === 0) {
+      isoleLine.push({x: i})
+     }
+    }
+
+    for (let i = 0; i < this.number_column; i++) {
+      let numberExist = false;
+      for (let j= 0; j < this.data.length; j++) {
+        const element = this.data[j][i];
+        if(!isNaN(element)){
+          numberExist = true
+        }
+      }
+      if (!numberExist) {
+        isoleCol.push({y: i})
+      }
+    }
+    return {line: isoleLine, col: isoleCol}
   }
 }
