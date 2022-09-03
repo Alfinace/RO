@@ -18,6 +18,7 @@ import { NodeModel } from 'src/app/models/model.node';
 export class HomeComponent implements OnInit {
   @ViewChild('step') step: ElementRef;
   @ViewChild('step2') step2: ElementRef;
+  @ViewChild('s') s: ElementRef;
   @ViewChild('step3') step3: ElementRef;
   public matriceForm: FormGroup;
   public showDiagram: boolean = false;
@@ -28,6 +29,7 @@ export class HomeComponent implements OnInit {
   public number_column: number;
   public lines: Array<number> = [];
   public columns: Array<number> = [];
+  public loop = 0;
   public max: any;
   public count = 0;
   public Vx: Array<any> = [];
@@ -35,14 +37,14 @@ export class HomeComponent implements OnInit {
   public alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   public nodeList: NodeListOf<Element>;
   public matrice: any[][] = [
-    [21, 11, 84, 49, 13],
-    [27, 52, 43, 29, 42],
-    [11, 47, 14, 80, 93],
-    [52, 14, 76, 74, 54],
+    [21, 11, 2, 11, 11],
+    [27, 1, 43, 1, 20],
+    [11, 11, 14, 2, 93],
+    [52, 14, 11, 4, 4],
   ];
   public data: any[][];
-  public B: number[] = [800, 439, 50, 790, 1470];
-  public R: number[] = [896, 782, 943, 928];
+  public B: number[] = [80, 11, 50, 55,20];
+  public R: number[] = [896, 1, 943, 2];
   ZValue: number;
   vita: boolean = false;
   line_blocked: number[];
@@ -58,7 +60,7 @@ export class HomeComponent implements OnInit {
   }
   private initialize() {
     this.data = [];
-    this.matrice = [];
+    // this.matrice = [];
     this.nodeData = [];
     var space = 0;
     for (let i = 0; i < this.number_line; i++) {
@@ -68,7 +70,7 @@ export class HomeComponent implements OnInit {
         loc: '100 ' + (100 + space).toString(),
       });
       this.data.push(Array(this.number_column).fill(0));
-      this.matrice.push(Array(this.number_column).fill(0));
+      // this.matrice.push(Array(this.number_column).fill(0));
       space += 70;
     }
     space = 0;
@@ -80,8 +82,8 @@ export class HomeComponent implements OnInit {
       });
       space += 70;
     }
-    this.R = Array(this.number_line).fill(0);
-    this.B = Array(this.number_column).fill(0);
+    // this.R = Array(this.number_line).fill(0);
+    // this.B = Array(this.number_column).fill(0);
   }
   public onGenarate() {
     this.columns = [];
@@ -100,6 +102,15 @@ export class HomeComponent implements OnInit {
     console.log(this.B);
   }
   public onCalculate() {
+    this.calculSolutionOptimale();
+    this.checkGenerateCase();
+    this.buildFirstArray();
+    this.calculZValue();
+  }
+  
+  // solution optimale
+  
+  calculSolutionOptimale() {
     var i = 0;
     while (i < this.B.length) {
       let completed = true;
@@ -156,55 +167,7 @@ export class HomeComponent implements OnInit {
         }
       }
     }
-    var table = document.createElement('table');
-    table.setAttribute('style', 'border-collapse: collapse');
-    var thead = document.createElement('thead');
-    var trh = document.createElement('tr');
-    trh.setAttribute('style', 'height: 50px');
-    var tbody = document.createElement('tbody');
-    trh.appendChild(document.createElement('th'));
-    for (let i = 0; i < this.number_column; i++) {
-      let th = document.createElement('th');
-      th.innerText = (i + 1).toString();
-      trh.appendChild(th);
-    }
-    thead.appendChild(trh);
-    table.appendChild(thead);
-    for (let i = 0; i < this.data.length; i++) {
-      let tr = document.createElement('tr');
-      let tdFirst = document.createElement('td');
-      tdFirst.innerText = this.alfa[i];
-      tdFirst.setAttribute('style', 'padding: 15px;');
-      tr.appendChild(tdFirst);
-      for (let j = 0; j < this.data[i].length; j++) {
-        let td = document.createElement('td');
-        td.setAttribute(
-          'style',
-          'border: 1px solid #000;padding: 15px;width: 20px;text-align:center'
-        );
-        td.innerText = this.data[i][j];
-        tr.appendChild(td);
-      }
-      let tdLast = document.createElement('td');
-      tdLast.setAttribute('style', 'padding: 15px');
-      tdLast.innerText = this.R[i].toString();
-      tr.appendChild(tdLast);
-      tbody.appendChild(tr);
-    }
-    let trLast = document.createElement('tr');
-    trLast.appendChild(document.createElement('td'));
-    for (let i = 0; i < this.B.length; i++) {
-      let tdLast = document.createElement('td');
-      tdLast.setAttribute('style', 'padding: 15px');
-      tdLast.innerText = this.B[i].toString();
-      trLast.appendChild(tdLast);
-    }
-    tbody.appendChild(trLast);
-    table.appendChild(tbody);
-    this.step.nativeElement.appendChild(table);
-    this.calculZValue();
   }
-
   // calcule Z et cherche maximun
   private calculZValue() {
     var z: number = 0;
@@ -237,8 +200,7 @@ export class HomeComponent implements OnInit {
     this.step2.nativeElement.appendChild(zHtml);
     this.linkData = tmpLinkData;
     this.showDiagram = true;
-    console.log(this.checkGenerateCase());
-    return
+    // return
     var p = 0;
     while (!this.vita) {
       if (p > 0) {
@@ -293,10 +255,8 @@ export class HomeComponent implements OnInit {
     this.R[lineIndex] = isNaN(parseFloat(el.value)) ? 0 : parseFloat(el.value);
   }
 
-  findVxAndVy() {
+  private findVxAndVy() {
     var { x, y } = this.max;
-    console.log(this.max);
-    
     this.Vx = Array(this.number_line).fill(NaN);
     this.Vy = Array(this.number_column).fill(NaN);
     let a = 0;   
@@ -332,9 +292,15 @@ export class HomeComponent implements OnInit {
       }
      a++
     }
-    console.log(...this.data);
-    console.log(this.Vx);
-    console.log(this.Vy);
+
+    var tableVx = this.buildArray(this.Vx);
+    var tableVy = this.buildArray(this.Vy);
+    if (this.loop == 0) {
+      this.s.nativeElement.appendChild(tableVx);
+      this.s.nativeElement.appendChild(tableVy);
+    }else{
+    }
+    
     let indexNy = this.Vx.findIndex((x => x < 0))
     let indexPy = this.Vy.findIndex((y => y < 0))
     if (indexPy == -1 || indexNy == -1) {
@@ -343,10 +309,11 @@ export class HomeComponent implements OnInit {
       this.vita = true
     }
 
+    this.loop++
     this.count++
   }
 
-  valeurAleatoire() {
+  private valeurAleatoire() {
     this.matrice = [];
     this.data = [];
     this.R = [];
@@ -364,18 +331,18 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  randomNum(min: number, max: number) {
+  private randomNum(min: number, max: number) {
     return Math.floor(Math.random() * (max - min)) + min; // You can remove the Math.floor if you don't want it to be an integer
   }
 
-  marquage() {
-    var lamdas: { x: number; y: number; value: any }[] = [];
+  private marquage() {
+    var deltas: { x: number; y: number; value: any }[] = [];
     var ul = document.createElement('ul');
     for (let i = 0; i < this.number_line; i++) {
       for (let j = 0; j < this.number_column; j++) {
         if (isNaN(this.data[i][j])) {
           let v = this.Vx[i] + this.matrice[i][j] - this.Vy[j];
-          lamdas.push({
+          deltas.push({
             x: i,
             y: j,
             value: v,
@@ -394,19 +361,19 @@ export class HomeComponent implements OnInit {
       let lres = document.createElement('div');
       lres.appendChild(ul);
       this.step2.nativeElement.appendChild(lres);
-      lamdas = lamdas.filter((lamda) => {
-        return lamda.value < 0;
+      deltas = deltas.filter((delta) => {
+        return delta.value < 0;
       });
     }
-    if (lamdas.length === 0) {
+    if (deltas.length === 0) {
       this.vita = true;
     }
     
-    if (lamdas.length > 0) {
+    if (deltas.length > 0) {
       var gains: { x: number; y: number; value: number; min?: any }[] = [];
       var paths : any[] = [];
-      for (let k = 0; k < lamdas.length; k++) {
-        var start = { ...lamdas[k] };
+      for (let k = 0; k < deltas.length; k++) {
+        var start = { ...deltas[k] };
         start.value = '-';
         let path = [];
         let line_blocked = [];
@@ -479,7 +446,15 @@ export class HomeComponent implements OnInit {
               'border: 1px solid #000;padding: 15px;width: 20px;text-align:center; position : relative'
             );
             let span = document.createElement('span');
-            span.innerText = this.data[i][j];
+            if (this.data[i][j] == Number.EPSILON) {
+              span.innerText = 'ε';
+              td.setAttribute(
+                'style',
+                'border: 1px solid #000;padding: 15px;width: 20px;text-align:center;color:blue;font-weight:bold;position : relative'
+              );
+            } else {
+              span.innerText = this.data[i][j]
+            }
             td.appendChild(span);
             let spanSign = document.createElement('span');
             
@@ -501,6 +476,7 @@ export class HomeComponent implements OnInit {
                 transform: scale(.7);`
               );
               if (indexPath % 2 == 0) {
+                
                 totalMoins += this.matrice[i][j];
                 if (!isNaN(this.data[i][j])) {
                   if (minMoins > this.data[i][j]) {
@@ -563,7 +539,6 @@ export class HomeComponent implements OnInit {
           'display: flex; justify-content: space-arround'
         );
         block.appendChild(table);
-        block.append('minMoins'+minMoins);
         let container = document.createElement('div');
         container.appendChild(block);
         this.step3.nativeElement.appendChild(container);
@@ -606,7 +581,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  find(path: any[], line_blocked: number[], col_blocked: number[]) {
+  private find(path: any[], line_blocked: number[], col_blocked: number[]) {
     var ok = false;
     var c = 0;
    this.line_blocked  = line_blocked;
@@ -655,28 +630,138 @@ export class HomeComponent implements OnInit {
     return path;
   }
 
-  checkGenerateCase(){
-    var isoleLine: any[] = [];
-    var isoleCol :any[] = [];
-    for (let i = 0; i < this.data.length; i++) {
-     let d = this.data[i].filter(d => !isNaN(d))
-     if (d.length === 0) {
-      isoleLine.push({x: i})
-     }
+  private checkGenerateCase(){
+    let count = 0;
+    let nbElemEachLine = [];
+    for (let i = 0; i < this.number_line; i++) {
+      let nb = this.data[i].filter(d => !isNaN(d)).length;
+      nbElemEachLine.push(nb)
+      count+=nb;
     }
+    
+    if ((this.number_column+ this.number_line - 1) > count) { // si vrai, il y a cas de genere
 
-    for (let i = 0; i < this.number_column; i++) {
-      let numberExist = false;
-      for (let j= 0; j < this.data.length; j++) {
-        const element = this.data[j][i];
-        if(!isNaN(element)){
-          numberExist = true
+        let col = []
+        for (let i = 0; i < this.number_column; i++) {
+          let count = {i:0,l:0,c:0};
+          for (let j= 0; j < this.data.length; j++) {
+            const element = this.data[j][i];
+            if(!isNaN(element)){
+              count.i++
+              count.l = j
+              count.c = i
+            }
+          }
+          if (count.i < 2) {
+            col.push({...count})
+          }
+        } 
+        let r = Math.floor(Math.random() * col.length);
+        
+        const max = Math.max(...nbElemEachLine);
+
+        const index = nbElemEachLine.indexOf(max);
+        console.log(index);
+        
+        for (let i = 0; i < col.length; i++) {
+          const element = col[i];
+          if (isNaN(this.data[index][element.c])) {
+            this.data[index][element.c] = Number.EPSILON;
+            break
+          }
         }
-      }
-      if (!numberExist) {
-        isoleCol.push({y: i})
-      }
     }
-    return {line: isoleLine, col: isoleCol}
+  }
+
+  // build vx et vy like array element
+
+  private buildArray(V : number[]): HTMLElement{
+    var div = document.createElement('div');
+    var table = document.createElement('table');
+    table.setAttribute('style', 'border-collapse: collapse');
+    var trh = document.createElement('tr');
+    trh.setAttribute('style', 'height: 50px');
+    var tbody = document.createElement('tbody');
+    trh.appendChild(document.createElement('th'));
+    let th = document.createElement('th');
+    th.innerText = 'Vx';
+    trh.appendChild(th);
+    for (let i = 0; i < V.length; i++) {
+      const element = V[i];
+      let tr = document.createElement('tr');
+      let td = document.createElement('td');
+      td.innerText = element.toString();
+      td.setAttribute(
+        'style',
+        'border: 1px solid #000;padding: 15px;width: 20px;text-align:center;'
+      );
+      tr.appendChild(td);
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    div.appendChild(table);
+    return div
+  }
+
+
+  // build first array element 
+
+  private buildFirstArray() {
+    var table = document.createElement('table');
+    table.setAttribute('style', 'border-collapse: collapse');
+    var thead = document.createElement('thead');
+    var trh = document.createElement('tr');
+    trh.setAttribute('style', 'height: 50px');
+    var tbody = document.createElement('tbody');
+    trh.appendChild(document.createElement('th'));
+    for (let i = 0; i < this.number_column; i++) {
+      let th = document.createElement('th');
+      th.innerText = (i + 1).toString();
+      trh.appendChild(th);
+    }
+    thead.appendChild(trh);
+    table.appendChild(thead);
+    for (let i = 0; i < this.data.length; i++) {
+      let tr = document.createElement('tr');
+      let tdFirst = document.createElement('td');
+      tdFirst.innerText = this.alfa[i];
+      tdFirst.setAttribute('style', 'padding: 15px;');
+      tr.appendChild(tdFirst);
+      for (let j = 0; j < this.data[i].length; j++) {
+        let td = document.createElement('td');
+        td.setAttribute(
+          'style',
+          'border: 1px solid #000;padding: 15px;width: 20px;text-align:center'
+        );
+
+        if (this.data[i][j] == Number.EPSILON) {
+          td.innerText = 'ε';
+          td.setAttribute(
+            'style',
+            'border: 1px solid #000;padding: 15px;width: 20px;text-align:center;color:blue;font-weight:bold'
+          );
+        } else {
+          td.innerText = this.data[i][j]
+        }
+        tr.appendChild(td);
+      }
+      let tdLast = document.createElement('td');
+      tdLast.setAttribute('style', 'padding: 15px');
+      tdLast.innerText = this.R[i].toString();
+      tr.appendChild(tdLast);
+      tbody.appendChild(tr);
+    }
+    let trLast = document.createElement('tr');
+    trLast.appendChild(document.createElement('td'));
+    for (let i = 0; i < this.B.length; i++) {
+      let tdLast = document.createElement('td');
+      tdLast.setAttribute('style', 'padding: 15px');
+      tdLast.innerText = this.B[i].toString();
+      trLast.appendChild(tdLast);
+    }
+    tbody.appendChild(trLast);
+    table.appendChild(tbody);
+    this.step.nativeElement.appendChild(table);
   }
 }
