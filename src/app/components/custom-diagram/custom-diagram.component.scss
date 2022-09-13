@@ -4,13 +4,13 @@
   height: 500px;
 	margin: auto;
   // border: 1px solid tr;
-	&:before{
-		content: "";
-		top: 0;
-		width: 10px;
-		position: absolute;
-		height: 100px;
-		z-index: 111;
-		background-color: inherit;
-	}
+	// &:before{
+	// 	content: "";
+	// 	top: 0;
+	// 	width: 10px;
+	// 	position: absolute;
+	// 	height: 100px;
+	// 	z-index: 111;
+	// 	background-color: inherit;
+	// }
 }
