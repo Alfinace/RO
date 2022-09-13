@@ -2,11 +2,13 @@
 	<div class="container">
 		<form [formGroup]="matriceForm"	 autocomplete="off" >
 			<h1>RECHERCHE OPERATIONNELLE</h1>
-			<h5>Problème de transport MINICO</h5>
-			<div class="flex">
-				<input type="number" [(ngModel)]="number_line" max="42" min="0" [ngModelOptions]="{standalone: true}" placeholder="Ligne">
-				<input type="number" [(ngModel)]="number_column" min="0" [ngModelOptions]="{standalone: true}" placeholder="Colonne">
-				<button (click)="onGenarate()" class="btn">Generate</button>
+			<h3>Problème de transport MINICO</h3>
+			<div class="flex" style="flex-direction:column">
+				<div class="flex">
+					<input type="number" [(ngModel)]="number_line" max="42" min="0" [ngModelOptions]="{standalone: true}" placeholder="Ligne">
+					<input type="number" [(ngModel)]="number_column" min="0" [ngModelOptions]="{standalone: true}" placeholder="Colonne">
+				</div>
+				<button (click)="onGenarate()" class="btn" style="width: max-content;padding: 20px;margin: auto;text-transform: uppercase;">Créer le tableau de base</button>
 			</div>
 		</form>
 		<div style="display:flex; flex-wrap: wrap;gap: 20px;justify-content: space-around;">
@@ -49,13 +51,19 @@
 			<div #step>
 			</div>
 		</div>
-		<div #step2 style="display: flex;flex-wrap: wrap;">
+		<div #step2 >
 			<app-custom-diagram  *ngIf="showDiagram" [diagramNodeData]="nodeData" [diagramLinkData]="linkData"></app-custom-diagram>
-			<div #s style="display: flex;flex-wrap: wrap; gap: 10px;">
-			</div>
+		</div>
+		<div #s style="display: flex;flex-wrap: wrap; gap: 10px;">
 		</div>
 
 	</div>
 	<div #step3>
+	</div>
+
+	<div style="display: flex; justify-content: center;flex-direction:column">
+		<h1>SOLUTION OPTIMALE</h1>
+
+		<p class="solution">Z = {{ZValue ?? 'NULL'}} </p>
 	</div>
 </div>

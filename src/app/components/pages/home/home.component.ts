@@ -37,14 +37,14 @@ export class HomeComponent implements OnInit {
   public alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   public nodeList: NodeListOf<Element>;
   public matrice: any[][] = [
-    [21, 11, 2, 11, 11],
-    [27, 1, 43, 1, 20],
-    [11, 11, 14, 2, 93],
-    [52, 14, 11, 4, 4],
+    [9, 12, 9, 6, 9, 10],
+    [7, 3, 7, 7, 5, 5],
+    [6, 5, 9, 11, 3, 11],
+    [6, 8, 11, 2, 2, 10],
   ];
   public data: any[][];
-  public B: number[] = [80, 11, 50, 55,20];
-  public R: number[] = [896, 1, 943, 2];
+  public B: number[] = [40, 30, 70, 20, 40, 20];
+  public R: number[] = [50, 60, 20, 90];
   ZValue: number;
   vita: boolean = false;
   line_blocked: number[];
@@ -60,7 +60,7 @@ export class HomeComponent implements OnInit {
   }
   private initialize() {
     this.data = [];
-    // this.matrice = [];
+    this.matrice = [];
     this.nodeData = [];
     var space = 0;
     for (let i = 0; i < this.number_line; i++) {
@@ -70,7 +70,7 @@ export class HomeComponent implements OnInit {
         loc: '100 ' + (100 + space).toString(),
       });
       this.data.push(Array(this.number_column).fill(0));
-      // this.matrice.push(Array(this.number_column).fill(0));
+      this.matrice.push(Array(this.number_column).fill(0));
       space += 70;
     }
     space = 0;
@@ -82,8 +82,8 @@ export class HomeComponent implements OnInit {
       });
       space += 70;
     }
-    // this.R = Array(this.number_line).fill(0);
-    // this.B = Array(this.number_column).fill(0);
+    this.R = Array(this.number_line).fill(0);
+    this.B = Array(this.number_column).fill(0);
   }
   public onGenarate() {
     this.columns = [];
@@ -196,7 +196,11 @@ export class HomeComponent implements OnInit {
     output = output.slice(0, -2);
     output += ` = ${z}`;
     let zHtml = document.createElement('div');
+    let h1Z = document.createElement('h1');
+    h1Z.setAttribute('style','text-align: center')
+    h1Z.innerHTML = 'SOLUTION DE BASE'
     zHtml.innerText = output;
+    this.step2.nativeElement.appendChild(h1Z);
     this.step2.nativeElement.appendChild(zHtml);
     this.linkData = tmpLinkData;
     this.showDiagram = true;
@@ -295,11 +299,11 @@ export class HomeComponent implements OnInit {
 
     var tableVx = this.buildArray(this.Vx);
     var tableVy = this.buildArray(this.Vy);
-    if (this.loop == 0) {
-      this.s.nativeElement.appendChild(tableVx);
-      this.s.nativeElement.appendChild(tableVy);
-    }else{
-    }
+    // if (this.loop == 0) {
+    //   this.s.nativeElement.appendChild(tableVx);
+    //   this.s.nativeElement.appendChild(tableVy);
+    // }else{
+    // }
     
     let indexNy = this.Vx.findIndex((x => x < 0))
     let indexPy = this.Vy.findIndex((y => y < 0))
@@ -348,19 +352,27 @@ export class HomeComponent implements OnInit {
             value: v,
           });
           let li = document.createElement('li');
-          li.setAttribute('style', 'margin: 10px;font-size: 18px;');
+          li.setAttribute('style', 'margin: 10px;font-size: 18px;border: 1px solid;padding: 10px;min-width: 200px;');
           if (v < 0) {
-            li.setAttribute('style', 'color :red');
+            li.setAttribute('style', 'margin: 10px;font-size: 18px;color :red;border:1px dashed;padding:10px;min-width: 200px;');
           }
-          li.innerText = `λ(${this.alfa[i]}, ${j + 1}) = ${this.Vx[i]} + ${
+          li.innerText = `δ(${this.alfa[i]}, ${j + 1}) = ${this.Vx[i]} + ${
             this.matrice[i][j]
           } - ${this.Vy[j]}`;
           ul.appendChild(li);
         }
       }
-      let lres = document.createElement('div');
-      lres.appendChild(ul);
-      this.step2.nativeElement.appendChild(lres);
+      // let lres = document.createElement('div');
+      // lres.appendChild(ul)
+      ul.setAttribute('style',`    
+        list-style:none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+      `);
+      this.step3.nativeElement.appendChild(ul);
       deltas = deltas.filter((delta) => {
         return delta.value < 0;
       });
@@ -536,7 +548,7 @@ export class HomeComponent implements OnInit {
         let block = document.createElement('div');
         block.setAttribute(
           'style',
-          'display: flex; justify-content: space-arround'
+          'display: flex; justify-content: center;'
         );
         block.appendChild(table);
         let container = document.createElement('div');
@@ -567,17 +579,31 @@ export class HomeComponent implements OnInit {
       
       let titleGain = document.createElement('h3');
         titleGain.innerText = `
-      Gains obtenus par l’utilisation des relations de coûts marginaux négatifs
+      
       `;
       let zElement = document.createElement('p');
       zElement.innerText = ` Z = ${this.ZValue} - ${minGain.value} = ${
         this.ZValue - minGain.value
       };`;
       let gain = document.createElement('div');
-      gain.appendChild(titleGain);
+      let line = document.createElement('div');
+      line.innerHTML='******************************************************************************'
+      // gain.appendChild(titleGain);
+      zElement.setAttribute('style',`
+      width: max-content;
+      margin: auto;
+      padding: 20px;
+      background: yellow;
+      `)
+      line.setAttribute('style',`
+      width: max-content;
+      margin: auto;
+      padding: 10px;
+      `)
       gain.appendChild(zElement);
       this.ZValue = this.ZValue - minGain.value;
       this.step3.nativeElement.appendChild(gain);
+      this.step3.nativeElement.append(line);
     }
   }
 
@@ -661,7 +687,6 @@ export class HomeComponent implements OnInit {
         const max = Math.max(...nbElemEachLine);
 
         const index = nbElemEachLine.indexOf(max);
-        console.log(index);
         
         for (let i = 0; i < col.length; i++) {
           const element = col[i];

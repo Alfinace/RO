@@ -46,18 +46,20 @@ input::-webkit-outer-spin-button,
 	margin-left: 20px;
 	margin-top: 40px;
 	input{
-		background: #dbdbdb82;
+		background: #FFF;
+		// border: 1px solid;
 	}
 }
 .exp{
 	margin-left: 30px;
 	input{
-		background: #dbdbdb82;
+		// border: 1px solid;
+		background: #FFF;
 	}
 }
-form{
-	font-family: cursive;
-}
+// form{
+// 	font-family: cursive;
+// }
 
 .content{
 	display: flex;
@@ -75,11 +77,11 @@ form{
 			}
 			input{
 				border: none;
-				background: rgb(212, 212, 212);
+				background: white;
 				color: black;
-				border-radius: 2px;
-				max-width: 100px;
-				height:30px;
+				// border-radius: 2px;
+				width: 100px;
+				height:40px;
 				font-size: 15px;
 				text-align: center;
 				outline: none
@@ -98,7 +100,7 @@ form{
 			text-align: center;
 			h1{
 				font-weight: bold;
-				color: rgb(128, 128, 128);
+				color: #000
 			}
 			h5{
 				color: #c3bfbf;
@@ -128,4 +130,15 @@ form{
 	&:hover{
 		background-color: rgba(51, 206, 172, 1);
 	}
+}
+
+
+.solution{
+	width: max-content;
+	margin: auto;
+	padding: 10px;
+	font-size: 20px;
+	background-color: rgb(30, 202, 136);
+	color: white;
+	font-weight: bold;
 }
