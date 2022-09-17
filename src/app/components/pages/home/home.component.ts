@@ -37,13 +37,17 @@ export class HomeComponent implements OnInit {
   public alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   public nodeList: NodeListOf<Element>;
   public matrice: any[][] = [
-    [41,17,14,11,7],
-    [4,25,56,8,19],
-    [5,12,52,21,48],
+    // [41,17,14,11,7],
+    // [4,25,56,8,19],
+    // [5,12,52,21,48],
   ];
   public data: any[][];
-  public B: number[] = [30,30,30,30,30];
-  public R: number[] = [50,50,50];
+  public B: number[] = [
+    // 30,30,30,30,30
+  ];
+  public R: number[] = [
+    // 50,30,70
+  ];
   ZValue: number;
   vita: boolean = false;
   line_blocked: number[];
@@ -61,7 +65,7 @@ export class HomeComponent implements OnInit {
   }
   private initialize() {
     this.data = [];
-    // this.matrice = [];
+    this.matrice = [];
     this.nodeData = [];
     var space = 0;
     for (let i = 0; i < this.number_line; i++) {
@@ -71,7 +75,7 @@ export class HomeComponent implements OnInit {
         loc: '100 ' + (100 + space).toString(),
       });
       this.data.push(Array(this.number_column).fill(0));
-      // this.matrice.push(Array(this.number_column).fill(0));
+      this.matrice.push(Array(this.number_column).fill(0));
       space += 70;
     }
     space = 0;
@@ -83,8 +87,8 @@ export class HomeComponent implements OnInit {
       });
       space += 70;
     }
-    // this.R = Array(this.number_line).fill(0);
-    // this.B = Array(this.number_column).fill(0);
+    this.R = Array(this.number_line).fill(0);
+    this.B = Array(this.number_column).fill(0);
   }
   public onGenarate() {
     this.columns = [];
@@ -101,10 +105,9 @@ export class HomeComponent implements OnInit {
   }
   public onCalculate() {
     this.calculSolutionOptimale();
-    // console.log(this.data);
-    // return
     this.checkGenerateCase();
     this.buildFirstArray();
+    
     this.calculZValue();
   }
   
@@ -221,7 +224,7 @@ export class HomeComponent implements OnInit {
     this.showDiagram = true;
     var p = 0;
     while (!this.vita) {
-      if (p == 0) {
+      // if (p == 0) {
         this.max = { value: 0, x: null, y: null };
         var tmpLinkData: Array<linkModel> = [];
         for (let i = 0; i < this.data.length; i++) {
@@ -239,12 +242,12 @@ export class HomeComponent implements OnInit {
               }
             }
           }
-        }
+        // }
         this.linkData = tmpLinkData
         // console.log(...this.data);
       }
       this.findVxAndVy();
-      console.log(p);
+      // console.log(p);
       
       // if (p > 10) {
       //   break
@@ -277,26 +280,27 @@ export class HomeComponent implements OnInit {
 
   private findVxAndVy() {
     this.max = { value: 0, x: null, y: null };
-    // if (this.loop > 0) {
-      for (let i = 0; i < this.data.length; i++) {
-        for (let j = 0; j < this.data[i].length; j++) {
-          const value = this.data[i][j];
-  
-          if (!isNaN(value)) {
-            if (this.max.value < this.matrice[i][j]) {
-              this.max = { value: this.matrice[i][j], x: i, y: j };
-            }
+    if (this.loop > 0) {
+    this.checkGenerateCase();
+    }
+    for (let i = 0; i < this.data.length; i++) {
+      for (let j = 0; j < this.data[i].length; j++) {
+        const value = this.data[i][j];
+
+        if (!isNaN(value)) {
+          if (this.max.value < this.matrice[i][j]) {
+            this.max = { value: this.matrice[i][j], x: i, y: j };
           }
         }
       }
-    // }
+    }
     var { x, y } = this.max;
     console.log('maxValue',this.max);
     
     this.Vx = Array(this.number_line).fill(NaN);
     this.Vy = Array(this.number_column).fill(NaN);
     let a = 0;
-    // if (this.loop == 1) {
+    // if (this.loop == 0) {
     //   this.vita = true
     // }  
     // console.log(...this.data);
@@ -333,13 +337,13 @@ export class HomeComponent implements OnInit {
       // if (this.count == 3 && a == 2) {
       //   break
       // }
-      // if (a == 100) {
-      //   break
-      // }
+      if (a == 200) {
+        break
+      }
      a++
     }
     console.log(...this.data);
-    console.log(this.Vy);
+    console.log(this.Vx);
     console.log(this.Vy);
     
     var tableVx = this.buildArray(this.Vx);
@@ -569,7 +573,8 @@ export class HomeComponent implements OnInit {
         }
         
         // if (totalMoins > totalPlus) {
-        
+          // console.log( Math.min(...minMoins));
+          
           gains.push({
             ...res[res.length - 1],
             min: Math.min(...minMoins),
@@ -621,7 +626,7 @@ export class HomeComponent implements OnInit {
           if (this.data[r.x][r.y] == minGain.min) {
             this.data[r.x][r.y] = '-';
           } else {
-            this.data[r.x][r.y] = this.data[r.x][r.y] - minGain.min == 0 ? '-' : this.data[r.x][r.y] - minGain.min;
+            this.data[r.x][r.y] = this.data[r.x][r.y] - minGain.min ;
           }
         } else {
           this.data[r.x][r.y] = this.data[r.x][r.y] + minGain.min;
@@ -641,7 +646,7 @@ export class HomeComponent implements OnInit {
       }
       
       let zElement = document.createElement('p');
-      zElement.innerText = ` Z = ${this.ZValue}  ${minGain.value} = ${
+      zElement.innerText = ` Z = ${this.ZValue}  ${minGain.value == 0 ? '- 0' : minGain.value }  = ${
         this.ZValue + minGain.value
       };`;
       let line = document.createElement('div');
@@ -721,9 +726,7 @@ export class HomeComponent implements OnInit {
       nbElemEachLine.push(nb)
       count+=nb;
     }
-    
-    if ((this.number_column+ this.number_line - 1) > count) { // si vrai, il y a cas de genere
-
+    if ((this.number_column + this.number_line - 1) > count) { // si vrai, il y a cas de genere
         let col = []
         for (let i = 0; i < this.number_column; i++) {
           let count = {i:0,l:0,c:0};
@@ -742,8 +745,15 @@ export class HomeComponent implements OnInit {
         let r = Math.floor(Math.random() * col.length);
         
         const max = Math.max(...nbElemEachLine);
-
-        const index = nbElemEachLine.indexOf(max);
+        console.log("col",col);
+        console.log("matrile",...this.matrice);
+        console.log("akata",...nbElemEachLine);
+        
+        if (this.loop < 1) {
+          var index = nbElemEachLine.indexOf(max);
+        }else{
+          var index =  1;
+        }
         
         for (let i = 0; i < col.length; i++) {
           const element = col[i];

@@ -5,6 +5,7 @@ body{
 	margin: auto;
 	max-width: 900px;
 	background-image: url('assets/bg.jpg');
+	background-attachment: fixed;
 	background-repeat: repeat-y;
 	background-size: cover;
 	height: calc(100% - 0);
