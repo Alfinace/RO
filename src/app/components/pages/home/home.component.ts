@@ -20,11 +20,14 @@ export class HomeComponent implements OnInit {
   @ViewChild('step2') step2: ElementRef;
   @ViewChild('s') s: ElementRef;
   @ViewChild('step3') step3: ElementRef;
+  @ViewChild('principalData') principalData: ElementRef;
   public matriceForm: FormGroup;
   public showDiagram: boolean = false;
+  public isLoading: boolean  = false;
+  public firstLinkData: Array<linkModel> = [];
+  public linkData: Array<linkModel> = [];
   public nodeData: Array<NodeModel> = [];
   public path: { x: number; y: number; value: number }[] = [];
-  public linkData: Array<linkModel> = [];
   public number_line: number;
   public number_column: number;
   public lines: Array<number> = [];
@@ -104,11 +107,24 @@ export class HomeComponent implements OnInit {
     this.initialize();
   }
   public onCalculate() {
-    this.calculSolutionOptimale();
-    this.checkGenerateCase();
-    this.buildFirstArray();
-    
-    this.calculZValue();
+    this.isLoading = true;
+    setTimeout(() => {
+      this.calculSolutionOptimale();
+      this.checkGenerateCase();
+      this.buildFirstArray();
+      this.calculZValue();
+      this.isLoading = false;
+    }, 4000);
+  }
+
+  public onReset(){
+    this.data = [];
+    this.matrice = [];
+    this.nodeData = [];
+    this.lines = [];
+    this.columns = [];
+    this.number_column = 0;
+    this.number_line = 0;
   }
   
   // solution optimale
@@ -220,11 +236,11 @@ export class HomeComponent implements OnInit {
     zHtml.innerText = output;
     this.step2.nativeElement.appendChild(h1Z);
     this.step2.nativeElement.appendChild(zHtml);
-    this.linkData = tmpLinkData;
+    this.firstLinkData = tmpLinkData;
     this.showDiagram = true;
     var p = 0;
     while (!this.vita) {
-      // if (p == 0) {
+      if (p > 0) {
         this.max = { value: 0, x: null, y: null };
         var tmpLinkData: Array<linkModel> = [];
         for (let i = 0; i < this.data.length; i++) {
@@ -242,8 +258,8 @@ export class HomeComponent implements OnInit {
               }
             }
           }
-        // }
-        this.linkData = tmpLinkData
+          this.linkData = tmpLinkData
+        }
         // console.log(...this.data);
       }
       this.findVxAndVy();
@@ -337,9 +353,9 @@ export class HomeComponent implements OnInit {
       // if (this.count == 3 && a == 2) {
       //   break
       // }
-      if (a == 200) {
-        break
-      }
+      // if (a == 200) {
+      //   break
+      // }
      a++
     }
     console.log(...this.data);
@@ -745,9 +761,6 @@ export class HomeComponent implements OnInit {
         let r = Math.floor(Math.random() * col.length);
         
         const max = Math.max(...nbElemEachLine);
-        console.log("col",col);
-        console.log("matrile",...this.matrice);
-        console.log("akata",...nbElemEachLine);
         
         if (this.loop < 1) {
           var index = nbElemEachLine.indexOf(max);

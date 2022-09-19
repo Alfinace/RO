@@ -1,69 +1,97 @@
-<div class="content">
-	<div class="container">
-		<form [formGroup]="matriceForm"	 autocomplete="off" >
-			<h1>RECHERCHE OPERATIONNELLE</h1>
-			<h3>Problème de transport MINICO</h3>
-			<div class="flex" style="flex-direction:column">
-				<div class="flex">
-					<input type="number" [(ngModel)]="number_line" max="42" min="0" [ngModelOptions]="{standalone: true}" placeholder="Ligne">
-					<input type="number" [(ngModel)]="number_column" min="0" [ngModelOptions]="{standalone: true}" placeholder="Colonne">
+<div class="content" style="margin: 0;padding:0; height: calc(100vh - 0px)">
+	<div class="container" style="display:flex;height: calc(100vh - 0px);">
+		<div style=" min-width: 20%;padding: 30px; background-color: rgb(233, 230, 230);overflow: auto;position: sticky; top: 0;">
+			<form [formGroup]="matriceForm"	 autocomplete="off" >
+				<h1>R.O</h1>
+				<!-- <h3>Problème de transport</h3> -->
+				<div class="flex" style="flex-direction:column">
+					<div class="flex">
+						<input type="number" [(ngModel)]="number_line" max="42" min="0" [ngModelOptions]="{standalone: true}" placeholder="Ligne">
+						<input type="number" [(ngModel)]="number_column" min="0" [ngModelOptions]="{standalone: true}" placeholder="Colonne">
+					</div>
+					<button (click)="onGenarate()" [disabled]="!(number_line > 0 && number_column >0)" class="btn" style="width: max-content;padding: 20px;margin: auto;text-transform: uppercase;">Creer le tableau de base</button>
 				</div>
-				<button (click)="onGenarate()" class="btn" style="width: max-content;padding: 20px;margin: auto;text-transform: uppercase;">Créer le tableau de base</button>
+			</form>
+			<div style="display:flex; flex-wrap: wrap;gap: 20px;justify-content: space-around;">
+				<div class="flex direction-col flex-center">
+					<div>
+						<div class="content-data">
+							<table class="alfa">
+								<tr *ngFor="let line of lines; let index">
+									{{alfa[index]}}
+								</tr>
+							</table>
+							<table class="principale-data" #principaleData >
+								<thead>
+									<td class="text-center" *ngFor="let column of columns;let index"> {{index + 1}} </td>
+								</thead>
+								<tr *ngFor="let line of lines">
+									<td *ngFor="let column of columns">
+										<input id="{{line}}x{{column}}" type="number"  (input)="onInput($event)">
+									</td>
+								</tr>
+							</table>
+							<table class="des">
+								<tr *ngFor="let line of lines; let index">
+									<input id="linex{{index}}" type="number" (input)="onInputLine($event)">
+								</tr>
+							</table>
+						</div>
+						<div>
+							<table class="exp">
+								<tr>
+									<td *ngFor="let column of columns; let index">
+										<input id="colx{{index}}" type="number" (input)="onInputColumn($event)">
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div  *ngIf="lines.length > 0" style="display: flex;justify-content: space-around;width: 100%;margin: 20px 0;">
+						<button class="btn-a btn-danger" (click)="onCalculate()">Résoudre</button>
+						<button class="btn-a btn-danger"  (click)="onReset()">Initialiser</button>
+					</div>
+				</div>
 			</div>
-		</form>
-		<div style="display:flex; flex-wrap: wrap;gap: 20px;justify-content: space-around;">
-			<div class="flex direction-col flex-center">
-				<div>
-					<div class="content-data">
-						<table class="alfa">
-							<tr *ngFor="let line of lines; let index">
-								{{alfa[index]}}
-							</tr>
-						</table>
-						<table class="principale-data">
-							<thead>
-								<td class="text-center" *ngFor="let column of columns;let index"> {{index + 1}} </td>
-							</thead>
-							<tr *ngFor="let line of lines">
-								<td *ngFor="let column of columns">
-									<input id="{{line}}x{{column}}" type="number"  (input)="onInput($event)">
-								</td>
-							</tr>
-						</table>
-						<table class="des">
-							<tr *ngFor="let line of lines; let index">
-								<input id="linex{{index}}" type="number" (input)="onInputLine($event)">
-							</tr>
-						</table>
+
+		</div>
+		<div style="position: relative;max-height: calc(100% - 0%);overflow: auto;width: 100%;
+    align-items: center;
+    justify-content: center;">
+			<div class="loading" *ngIf="isLoading;" style=" height: calc(100% - 0px);;display:flex">
+				<img src="assets/loading.gif" alt="" srcset="">
+			</div>
+			<!-- <ng-template #bg > -->
+				<img *ngIf="!isLoading && !vita" src="assets/image.svg" width="500px"  alt="" srcset="">
+			<!-- </ng-template> -->
+			<div #step style="display: flex;justify-content: center;" ></div>
+			<div #step2 >
+				<div style="display: flex; gap: 20px; justify-content: center;flex-wrap: wrap;" *ngIf="showDiagram" >
+					<div>
+						<p style="text-align: center; text-decoration: underline;text-transform: uppercase">
+							initiale
+						</p>
+						<app-custom-diagram  [diagramNodeData]="nodeData" [diagramLinkData]="firstLinkData"></app-custom-diagram>
 					</div>
 					<div>
-						<table class="exp">
-							<tr>
-								<td *ngFor="let column of columns; let index">
-									<input id="colx{{index}}" type="number" (input)="onInputColumn($event)">
-								</td>
-							</tr>
-						</table>
+						<p style="text-align: center; text-decoration: underline;text-transform: uppercase">
+							Finale
+						</p>
+						<app-custom-diagram   [diagramNodeData]="nodeData" [diagramLinkData]="linkData"></app-custom-diagram>
 					</div>
 				</div>
-				<button class="btn-a" *ngIf="lines.length > 0" (click)="onCalculate()">Calculate</button>
 			</div>
-			<div #step>
+			<div #s style="display: flex;flex-wrap: wrap; gap: 10px;">
+			</div>
+	
+			<div #step3>
+			</div>
+		
+			<div *ngIf="ZValue" style="display: flex; justify-content: center;flex-direction:column">
+				<h3>SOLUTION OPTIMALE</h3>
+		
+				<p class="solution">Z = {{ZValue ?? 'NULL'}} </p>
 			</div>
 		</div>
-		<div #step2 >
-			<app-custom-diagram  *ngIf="showDiagram" [diagramNodeData]="nodeData" [diagramLinkData]="linkData"></app-custom-diagram>
-		</div>
-		<div #s style="display: flex;flex-wrap: wrap; gap: 10px;">
-		</div>
-
-	</div>
-	<div #step3>
-	</div>
-
-	<div style="display: flex; justify-content: center;flex-direction:column">
-		<h1>SOLUTION OPTIMALE</h1>
-
-		<p class="solution">Z = {{ZValue ?? 'NULL'}} </p>
 	</div>
 </div>
