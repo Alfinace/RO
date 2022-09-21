@@ -99,9 +99,12 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/loading-bar/dist/loading-bar.min.css"
             ],
-            "scripts": []
+            "scripts": [
+              "src/loading-bar/dist/loading-bar.min.js"
+            ]
           }
         }
       }

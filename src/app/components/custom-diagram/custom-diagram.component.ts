@@ -14,11 +14,7 @@ export class CustomDiagramComponent {
   @Input() public diagramNodeData: Array<NodeModel> = [];
   @Input() public diagramLinkData: Array<linkModel> = [];
   constructor(private changeDetectorRef: ChangeDetectorRef) { }
-  // ngAfterViewInit(): void {
-  // this.changeDetectorRef.detectChanges();
-  // }
   public initDiagram(): go.Diagram {
-    
     const $ = go.GraphObject.make;
     const dia = $(go.Diagram, {
       "ExternalObjectsDropped": (e)=> {console.log(e);
@@ -53,7 +49,6 @@ export class CustomDiagramComponent {
       $(go.Shape, { width: 70, height: 70, fill: "transparent", stroke: null }),
       $(go.TextBlock,
         new go.Binding("text")));
-  
         dia.linkTemplate =
         $(go.Link,
           { reshapable: true,
@@ -75,20 +70,14 @@ export class CustomDiagramComponent {
             margin: 20,
           },
             new go.Binding("text","text")));
-            
-            
     return dia;
   }
-  
-
   public diagramDivClassName: string = 'myDiagramDiv';
   public diagramModelData = { prop: 'value' };
-  
   // When the diagram model changes, update app data to reflect those changes
   public diagramModelChange = (changes: any) => {
     this.diagramNodeData = DataSyncService.syncNodeData(changes, this.diagramNodeData) as any;
     this.diagramLinkData = DataSyncService.syncLinkData(changes, this.diagramLinkData) as any;
     this.diagramModelData = DataSyncService.syncModelData(changes, this.diagramModelData) as any;
   };
-
 }

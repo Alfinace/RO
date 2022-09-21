@@ -20,11 +20,14 @@ export class HomeComponent implements OnInit {
   @ViewChild('step2') step2: ElementRef;
   @ViewChild('s') s: ElementRef;
   @ViewChild('step3') step3: ElementRef;
+  @ViewChild('principalData') principalData: ElementRef;
   public matriceForm: FormGroup;
   public showDiagram: boolean = false;
+  public isLoading: boolean  = false;
+  public firstLinkData: Array<linkModel> = [];
+  public linkData: Array<linkModel> = [];
   public nodeData: Array<NodeModel> = [];
   public path: { x: number; y: number; value: number }[] = [];
-  public linkData: Array<linkModel> = [];
   public number_line: number;
   public number_column: number;
   public lines: Array<number> = [];
@@ -37,18 +40,23 @@ export class HomeComponent implements OnInit {
   public alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   public nodeList: NodeListOf<Element>;
   public matrice: any[][] = [
-    [9, 12, 9, 6, 9, 10],
-    [7, 3, 7, 7, 5, 5],
-    [6, 5, 9, 11, 3, 11],
-    [6, 8, 11, 2, 2, 10],
+    // [41,17,14,11,7],
+    // [4,25,56,8,19],
+    // [5,12,52,21,48],
   ];
   public data: any[][];
-  public B: number[] = [40, 30, 70, 20, 40, 20];
-  public R: number[] = [50, 60, 20, 90];
+  public B: number[] = [
+    // 30,30,30,30,30
+  ];
+  public R: number[] = [
+    // 50,30,70
+  ];
   ZValue: number;
   vita: boolean = false;
   line_blocked: number[];
   col_blocked: number[];
+  mini_value: number;
+  boucle: any= 0;
   constructor(
     private formBuilder: FormBuilder,
     private changeDetectorRef: ChangeDetectorRef
@@ -97,22 +105,34 @@ export class HomeComponent implements OnInit {
       this.columns.push(i);
     }
     this.initialize();
-    console.log(this.matrice);
-    console.log(this.R);
-    console.log(this.B);
   }
   public onCalculate() {
-    this.calculSolutionOptimale();
-    this.checkGenerateCase();
-    this.buildFirstArray();
-    this.calculZValue();
+    this.isLoading = true;
+    setTimeout(() => {
+      this.calculSolutionOptimale();
+      this.checkGenerateCase();
+      this.buildFirstArray();
+      this.calculZValue();
+      this.isLoading = false;
+    }, 4000);
+  }
+
+  public onReset(){
+    this.data = [];
+    this.matrice = [];
+    this.nodeData = [];
+    this.lines = [];
+    this.columns = [];
+    this.number_column = 0;
+    this.number_line = 0;
   }
   
   // solution optimale
   
   calculSolutionOptimale() {
     var i = 0;
-    while (i < this.B.length) {
+    
+    while (i < this.B.length) {      
       let completed = true;
       var begin = 0;
       for (let a = 0; a < this.R.length; a++) {
@@ -121,7 +141,7 @@ export class HomeComponent implements OnInit {
           completed = false;
           break;
         }
-      }
+      }      
       if (completed) {
         i++;
       } else {
@@ -159,15 +179,29 @@ export class HomeComponent implements OnInit {
           this.B[i] = 0;
           i++;
         } else {
-          this.data[min_index][i] = this.B[i];
-          this.B[i] = 0;
-          this.R[min_index] = 0;
-          i++;
-          break;
+            for (let k = 0; k < this.R.length; k++) {
+              if (this.data[k][i] == 0) {
+                this.data[k][i] = '-';
+              }
+            }
+            for (let k = 0; k < this.B.length; k++) {
+              if (this.data[min_index][k] == 0) {
+                this.data[min_index][k] = '-';
+              }
+            }
+            this.data[min_index][i] = this.B[i];
+            this.B[i] = 0;
+            this.R[min_index] = 0;
+            if (i == this.B.length -1) {
+              break;
+            }
+            i++;
+          // break
         }
       }
     }
   }
+
   // calcule Z et cherche maximun
   private calculZValue() {
     var z: number = 0;
@@ -202,9 +236,8 @@ export class HomeComponent implements OnInit {
     zHtml.innerText = output;
     this.step2.nativeElement.appendChild(h1Z);
     this.step2.nativeElement.appendChild(zHtml);
-    this.linkData = tmpLinkData;
+    this.firstLinkData = tmpLinkData;
     this.showDiagram = true;
-    // return
     var p = 0;
     while (!this.vita) {
       if (p > 0) {
@@ -225,12 +258,14 @@ export class HomeComponent implements OnInit {
               }
             }
           }
+          this.linkData = tmpLinkData
         }
-        this.linkData = tmpLinkData
+        // console.log(...this.data);
       }
       this.findVxAndVy();
+      // console.log(p);
       
-      // if (this.count > 10) {
+      // if (p > 10) {
       //   break
       // }
       p++
@@ -260,10 +295,32 @@ export class HomeComponent implements OnInit {
   }
 
   private findVxAndVy() {
+    this.max = { value: 0, x: null, y: null };
+    if (this.loop > 0) {
+    this.checkGenerateCase();
+    }
+    for (let i = 0; i < this.data.length; i++) {
+      for (let j = 0; j < this.data[i].length; j++) {
+        const value = this.data[i][j];
+
+        if (!isNaN(value)) {
+          if (this.max.value < this.matrice[i][j]) {
+            this.max = { value: this.matrice[i][j], x: i, y: j };
+          }
+        }
+      }
+    }
     var { x, y } = this.max;
+    console.log('maxValue',this.max);
+    
     this.Vx = Array(this.number_line).fill(NaN);
     this.Vy = Array(this.number_column).fill(NaN);
-    let a = 0;   
+    let a = 0;
+    // if (this.loop == 0) {
+    //   this.vita = true
+    // }  
+    // console.log(...this.data);
+     
     while (this.Vx.includes(NaN) || this.Vy.includes(NaN)) {
       for (let i = 0; i < this.number_line; i++) {
         for (let j = 0; j < this.number_column; j++) {
@@ -291,28 +348,32 @@ export class HomeComponent implements OnInit {
           }
         }
       }
-      if (this.count == 3 && a == 2) {
-        break
-      }
+      // console.log(this.c);
+      
+      // if (this.count == 3 && a == 2) {
+      //   break
+      // }
+      // if (a == 200) {
+      //   break
+      // }
      a++
     }
-
+    console.log(...this.data);
+    console.log(this.Vx);
+    console.log(this.Vy);
+    
     var tableVx = this.buildArray(this.Vx);
     var tableVy = this.buildArray(this.Vy);
-    // if (this.loop == 0) {
-    //   this.s.nativeElement.appendChild(tableVx);
-    //   this.s.nativeElement.appendChild(tableVy);
-    // }else{
-    // }
+   
     
     let indexNy = this.Vx.findIndex((x => x < 0))
     let indexPy = this.Vy.findIndex((y => y < 0))
+   
     if (indexPy == -1 || indexNy == -1) {
       this.marquage();
     }else{
       this.vita = true
     }
-
     this.loop++
     this.count++
   }
@@ -377,6 +438,13 @@ export class HomeComponent implements OnInit {
         return delta.value < 0;
       });
     }
+    // console.log(this.count);
+    // console.log(deltas);
+    // if (this.count > 2) {
+    //   this.vita = true
+      
+    // }
+
     if (deltas.length === 0) {
       this.vita = true;
     }
@@ -385,6 +453,7 @@ export class HomeComponent implements OnInit {
       var gains: { x: number; y: number; value: number; min?: any }[] = [];
       var paths : any[] = [];
       for (let k = 0; k < deltas.length; k++) {
+        
         var start = { ...deltas[k] };
         start.value = '-';
         let path = [];
@@ -441,10 +510,10 @@ export class HomeComponent implements OnInit {
         }
         thead.appendChild(trh);
         table.appendChild(thead);
-        var totalMoins = 0;
-        var totalPlus = 0;
-        var minMoins = 0;
-        var minPlus = 0;
+        let totalMoins = 0;
+        let totalPlus = 0;
+        let minMoins = [];
+        // var minPlus = 0;
         for (let i = 0; i < this.data.length; i++) {
           let tr = document.createElement('tr');
           let tdFirst = document.createElement('td');
@@ -458,11 +527,11 @@ export class HomeComponent implements OnInit {
               'border: 1px solid #000;padding: 15px;width: 20px;text-align:center; position : relative'
             );
             let span = document.createElement('span');
-            if (this.data[i][j] == Number.EPSILON) {
+            if (this.data[i][j] == 0) {
               span.innerText = 'ε';
               td.setAttribute(
                 'style',
-                'border: 1px solid #000;padding: 15px;width: 20px;text-align:center;color:blue;font-weight:bold;position : relative'
+                'border: 1px solid #000;pad+ding: 15px;width: 20px;text-align:center;color:blue;font-weight:bold;position : relative'
               );
             } else {
               span.innerText = this.data[i][j]
@@ -471,7 +540,7 @@ export class HomeComponent implements OnInit {
             let spanSign = document.createElement('span');
             
             
-            let indexPath = res.findIndex((r) => r.x == i && r.y == j);            
+            let indexPath = res.findIndex((r) => r.x == i && r.y == j);                
             if (indexPath != -1) {
               spanSign.setAttribute(
                 'style',
@@ -490,25 +559,22 @@ export class HomeComponent implements OnInit {
               if (indexPath % 2 == 0) {
                 
                 totalMoins += this.matrice[i][j];
-                if (!isNaN(this.data[i][j])) {
-                  if (minMoins > this.data[i][j]) {
-                    minMoins = this.data[i][j];
-                  }
-                  if (minMoins == 0) {
-                    minMoins = this.data[i][j];
-                  }
-                }
+                // if (!isNaN(this.data[i][j])) {
+                  
+                  minMoins.push(this.data[i][j]);
+                // }
                 spanSign.innerText = '-';
               } else {
+
                 totalPlus += this.matrice[i][j];
-                if (!isNaN(this.data[i][j])) {
-                  if (minPlus > this.data[i][j]) {
-                    minPlus = this.data[i][j];
-                  }
-                  if (minPlus == 0) {
-                    minPlus = this.data[i][j];
-                  }
-                }
+                // if (!isNaN(this.data[i][j])) {
+                //   if (minPlus > this.data[i][j]) {
+                //     minPlus = this.data[i][j];
+                //   }
+                //   if (minPlus == 0) {
+                //     minPlus = this.data[i][j];
+                //   }
+                // }
                 spanSign.innerText = '+';
               }
             }
@@ -522,19 +588,21 @@ export class HomeComponent implements OnInit {
           tbody.appendChild(tr);
         }
         
-        if (totalMoins > totalPlus) {
+        // if (totalMoins > totalPlus) {
+          // console.log( Math.min(...minMoins));
+          
           gains.push({
             ...res[res.length - 1],
-            min: minMoins,
-            value: (totalMoins - totalPlus) * minMoins,
+            min: Math.min(...minMoins),
+            value: deltas[k].value * Math.min(...minMoins),
           });
-        } if (totalMoins < totalPlus) {
-          gains.push({
-            ...res[res.length - 1],
-            min: minPlus,
-            value: (totalPlus - totalMoins) * minPlus,
-          });
-        }
+        // }else if (totalMoins < totalPlus) {
+        //   gains.push({
+        //     ...res[res.length - 1],
+        //     min: minPlus,
+        //     value: (totalPlus - totalMoins) * minPlus,
+        //   });
+        // }
         let trLast = document.createElement('tr');
         trLast.appendChild(document.createElement('td'));
         for (let i = 0; i < this.B.length; i++) {
@@ -555,40 +623,50 @@ export class HomeComponent implements OnInit {
         container.appendChild(block);
         this.step3.nativeElement.appendChild(container);
       }
-      var minGain = gains[0];
-      var index = 0;
-      for (let i = 1; i < gains.length -1; i++) {
+      let minGain = gains[0];
+      let index = 0;
+      
+      for (let i = 1; i < gains.length ; i++) {
+        
         if (gains[i].value < minGain.value) {
           minGain = gains[i];
+          index = i
         }
-      }
+      }  
       for (let i = paths[index].length - 1; i >= 0; i--) {
-        const r = paths[index][i];
-        if (i == paths[index].length - 1) {
+        const r = paths[index][i];   
+        
+        if (r.value === '-') {
           this.data[r.x][r.y] = minGain.min;
         } else if (i % 2 == 0) {
           if (this.data[r.x][r.y] == minGain.min) {
             this.data[r.x][r.y] = '-';
           } else {
-            this.data[r.x][r.y] = this.data[r.x][r.y] - minGain.min;
+            this.data[r.x][r.y] = this.data[r.x][r.y] - minGain.min ;
           }
         } else {
           this.data[r.x][r.y] = this.data[r.x][r.y] + minGain.min;
         }
       }
-      
-      let titleGain = document.createElement('h3');
-        titleGain.innerText = `
-      
-      `;
-      let zElement = document.createElement('p');
-      zElement.innerText = ` Z = ${this.ZValue} - ${minGain.value} = ${
-        this.ZValue - minGain.value
-      };`;
+
       let gain = document.createElement('div');
+
+      for (let i = 0; i < gains.length; i++) {
+        const element = gains[i];
+        
+        let titleGain = document.createElement('h3');
+          titleGain.innerText = ` value: ${element.value}, min ${element.min} 
+        
+        `;
+        gain.appendChild(titleGain);
+      }
+      
+      let zElement = document.createElement('p');
+      zElement.innerText = ` Z = ${this.ZValue}  ${minGain.value == 0 ? '- 0' : minGain.value }  = ${
+        this.ZValue + minGain.value
+      };`;
       let line = document.createElement('div');
       line.innerHTML='******************************************************************************'
-      // gain.appendChild(titleGain);
       zElement.setAttribute('style',`
       width: max-content;
       margin: auto;
@@ -601,7 +679,7 @@ export class HomeComponent implements OnInit {
       padding: 10px;
       `)
       gain.appendChild(zElement);
-      this.ZValue = this.ZValue - minGain.value;
+      this.ZValue = this.ZValue + minGain.value;
       this.step3.nativeElement.appendChild(gain);
       this.step3.nativeElement.append(line);
     }
@@ -664,9 +742,7 @@ export class HomeComponent implements OnInit {
       nbElemEachLine.push(nb)
       count+=nb;
     }
-    
-    if ((this.number_column+ this.number_line - 1) > count) { // si vrai, il y a cas de genere
-
+    if ((this.number_column + this.number_line - 1) > count) { // si vrai, il y a cas de genere
         let col = []
         for (let i = 0; i < this.number_column; i++) {
           let count = {i:0,l:0,c:0};
@@ -685,13 +761,17 @@ export class HomeComponent implements OnInit {
         let r = Math.floor(Math.random() * col.length);
         
         const max = Math.max(...nbElemEachLine);
-
-        const index = nbElemEachLine.indexOf(max);
+        
+        if (this.loop < 1) {
+          var index = nbElemEachLine.indexOf(max);
+        }else{
+          var index =  1;
+        }
         
         for (let i = 0; i < col.length; i++) {
           const element = col[i];
           if (isNaN(this.data[index][element.c])) {
-            this.data[index][element.c] = Number.EPSILON;
+            this.data[index][element.c] = 0;
             break
           }
         }
@@ -760,7 +840,7 @@ export class HomeComponent implements OnInit {
           'border: 1px solid #000;padding: 15px;width: 20px;text-align:center'
         );
 
-        if (this.data[i][j] == Number.EPSILON) {
+        if (this.data[i][j] == 0) {
           td.innerText = 'ε';
           td.setAttribute(
             'style',
