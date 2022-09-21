@@ -114,7 +114,7 @@ export class HomeComponent implements OnInit {
       this.buildFirstArray();
       this.calculZValue();
       this.isLoading = false;
-    }, 4000);
+    }, 3000);
   }
 
   public onReset(){
