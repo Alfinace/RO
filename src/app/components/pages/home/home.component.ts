@@ -28,8 +28,8 @@ export class HomeComponent implements OnInit {
   public linkData: Array<linkModel> = [];
   public nodeData: Array<NodeModel> = [];
   public path: { x: number; y: number; value: number }[] = [];
-  public number_line: number;
-  public number_column: number;
+  public lineNumber: number;
+  public columnNumber: number;
   public lines: Array<number> = [];
   public columns: Array<number> = [];
   public loop = 0;
@@ -39,23 +39,15 @@ export class HomeComponent implements OnInit {
   public Vy: Array<any> = [];
   public alfa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   public nodeList: NodeListOf<Element>;
-  public matrice: any[][] = [
-    // [41,17,14,11,7],
-    // [4,25,56,8,19],
-    // [5,12,52,21,48],
-  ];
+  public matrice: any[][] = [];
   public data: any[][];
-  public B: number[] = [
-    // 30,30,30,30,30
-  ];
-  public R: number[] = [
-    // 50,30,70
-  ];
+  public B: number[] = [];
+  public R: number[] = [];
   ZValue: number;
   vita: boolean = false;
-  line_blocked: number[];
-  col_blocked: number[];
-  mini_value: number;
+  lineBlocked: number[];
+  colBlocked: number[];
+  miniValue: number;
   boucle: any= 0;
   constructor(
     private formBuilder: FormBuilder,
@@ -71,37 +63,37 @@ export class HomeComponent implements OnInit {
     this.matrice = [];
     this.nodeData = [];
     var space = 0;
-    for (let i = 0; i < this.number_line; i++) {
+    for (let i = 0; i < this.lineNumber; i++) {
       this.nodeData.push({
         key: i,
         text: this.alfa[i],
         loc: '100 ' + (100 + space).toString(),
       });
-      this.data.push(Array(this.number_column).fill(0));
-      this.matrice.push(Array(this.number_column).fill(0));
+      this.data.push(Array(this.columnNumber).fill(0));
+      this.matrice.push(Array(this.columnNumber).fill(0));
       space += 70;
     }
     space = 0;
-    for (let i = 1; i <= this.number_column; i++) {
+    for (let i = 1; i <= this.columnNumber; i++) {
       this.nodeData.push({
-        key: this.number_line + i - 1,
+        key: this.lineNumber + i - 1,
         text: i.toString(),
         loc: '300 ' + (100 + space).toString(),
       });
       space += 70;
     }
-    this.R = Array(this.number_line).fill(0);
-    this.B = Array(this.number_column).fill(0);
+    this.R = Array(this.lineNumber).fill(0);
+    this.B = Array(this.columnNumber).fill(0);
   }
   public onGenarate() {
     this.columns = [];
     this.lines = [];
-    this.Vx = Array(this.number_line).fill(NaN);
-    this.Vy = Array(this.number_column).fill(NaN);
-    for (let i = 0; i < this.number_line; i++) {
+    this.Vx = Array(this.lineNumber).fill(NaN);
+    this.Vy = Array(this.columnNumber).fill(NaN);
+    for (let i = 0; i < this.lineNumber; i++) {
       this.lines.push(i);
     }
-    for (let i = 0; i < this.number_column; i++) {
+    for (let i = 0; i < this.columnNumber; i++) {
       this.columns.push(i);
     }
     this.initialize();
@@ -123,8 +115,8 @@ export class HomeComponent implements OnInit {
     this.nodeData = [];
     this.lines = [];
     this.columns = [];
-    this.number_column = 0;
-    this.number_line = 0;
+    this.columnNumber = 0;
+    this.lineNumber = 0;
   }
   
   // solution optimale
@@ -215,7 +207,7 @@ export class HomeComponent implements OnInit {
         if (!isNaN(value)) {
           tmpLinkData.push({
             from: i,
-            to: this.number_line + j,
+            to: this.lineNumber + j,
             text: this.matrice[i][j].toString(),
           });
           z += value * this.matrice[i][j];
@@ -250,7 +242,7 @@ export class HomeComponent implements OnInit {
             if (!isNaN(value)) {
               tmpLinkData.push({
                 from: i,
-                to: this.number_line + j,
+                to: this.lineNumber + j,
                 text: this.matrice[i][j].toString(),
               });
               if (this.max.value < this.matrice[i][j]) {
@@ -313,8 +305,8 @@ export class HomeComponent implements OnInit {
     var { x, y } = this.max;
     console.log('maxValue',this.max);
     
-    this.Vx = Array(this.number_line).fill(NaN);
-    this.Vy = Array(this.number_column).fill(NaN);
+    this.Vx = Array(this.lineNumber).fill(NaN);
+    this.Vy = Array(this.columnNumber).fill(NaN);
     let a = 0;
     // if (this.loop == 0) {
     //   this.vita = true
@@ -322,8 +314,8 @@ export class HomeComponent implements OnInit {
     // console.log(...this.data);
      
     while (this.Vx.includes(NaN) || this.Vy.includes(NaN)) {
-      for (let i = 0; i < this.number_line; i++) {
-        for (let j = 0; j < this.number_column; j++) {
+      for (let i = 0; i < this.lineNumber; i++) {
+        for (let j = 0; j < this.columnNumber; j++) {
           let value = this.data[i][j];
           if (!isNaN(value) && !isNaN(this.Vy[j])) {
             this.Vx[i] = this.Vy[j] - this.matrice[i][j];
@@ -383,15 +375,15 @@ export class HomeComponent implements OnInit {
     this.data = [];
     this.R = [];
     this.B = [];
-    for (let i = 0; i < this.number_line; i++) {
+    for (let i = 0; i < this.lineNumber; i++) {
       // this.matrice.push([]);
       this.R.push(this.randomNum(1, 100));
-      this.data.push(Array(this.number_column).fill(0));
-      for (let j = 0; j < this.number_column; j++) {
+      this.data.push(Array(this.columnNumber).fill(0));
+      for (let j = 0; j < this.columnNumber; j++) {
         this.matrice[i].push(this.randomNum(1, 100));
       }
     }
-    for (let j = 0; j < this.number_column; j++) {
+    for (let j = 0; j < this.columnNumber; j++) {
       this.B.push(this.randomNum(1, 100));
     }
   }
@@ -403,8 +395,8 @@ export class HomeComponent implements OnInit {
   private marquage() {
     var deltas: { x: number; y: number; value: any }[] = [];
     var ul = document.createElement('ul');
-    for (let i = 0; i < this.number_line; i++) {
-      for (let j = 0; j < this.number_column; j++) {
+    for (let i = 0; i < this.lineNumber; i++) {
+      for (let j = 0; j < this.columnNumber; j++) {
         if (isNaN(this.data[i][j])) {
           let v = this.Vx[i] + this.matrice[i][j] - this.Vy[j];
           deltas.push({
@@ -457,32 +449,32 @@ export class HomeComponent implements OnInit {
         var start = { ...deltas[k] };
         start.value = '-';
         let path = [];
-        let line_blocked = [];
-        let col_blocked = [];
-        for (let i = 0; i < this.number_column; i++) {
+        let lineBlocked = [];
+        let colBlocked = [];
+        for (let i = 0; i < this.columnNumber; i++) {
           let count = 0;
-          for (let j = 0; j < this.number_line; j++) {
+          for (let j = 0; j < this.lineNumber; j++) {
             if (!isNaN(this.data[j][i]) || start.y == i) {
               count++;
             }
           }
           if (count < 2) { 
-            col_blocked.push(i);
+            colBlocked.push(i);
           }
         }
-        for (let i = 0; i < this.number_line; i++) {
+        for (let i = 0; i < this.lineNumber; i++) {
           let count = 0;
-          for (let j = 0; j < this.number_column; j++) {
+          for (let j = 0; j < this.columnNumber; j++) {
             if (!isNaN(this.data[i][j]) || start.x == i) {
               count++;
             }
           }
           if (count < 2) {
-            line_blocked.push(i);
+            lineBlocked.push(i);
           }
         }
         path.push(start);
-        let res = this.find(path, line_blocked, col_blocked);
+        let res = this.find(path, lineBlocked, colBlocked);
         for (let index = 1; index < res.length; index++) {
           const element = res[index];
           if (index % 2 == 0) {
@@ -503,7 +495,7 @@ export class HomeComponent implements OnInit {
         trh.setAttribute('style', 'height: 50px');
         var tbody = document.createElement('tbody');
         trh.appendChild(document.createElement('th'));
-        for (let i = 0; i < this.number_column; i++) {
+        for (let i = 0; i < this.columnNumber; i++) {
           let th = document.createElement('th');
           th.innerText = (i + 1).toString();
           trh.appendChild(th);
@@ -685,15 +677,15 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private find(path: any[], line_blocked: number[], col_blocked: number[]) {
+  private find(path: any[], lineBlocked: number[], colBlocked: number[]) {
     var ok = false;
     var c = 0;
-   this.line_blocked  = line_blocked;
-   this.col_blocked  = col_blocked;
+   this.lineBlocked  = lineBlocked;
+   this.colBlocked  = colBlocked;
     while (!ok) {
-      for (let i = 0; i < this.number_column; i++) {
+      for (let i = 0; i < this.columnNumber; i++) {
         if (!isNaN(this.data[path[0].x][i])) {
-          if (!this.col_blocked.includes(i) && path[0].y != i) {
+          if (!this.colBlocked.includes(i) && path[0].y != i) {
             let index = path.findIndex(p => p.y == i && p.x == path[0].x && p.value == this.data[path[0].x][i])
             // if (index != -1) {
               path.unshift({
@@ -706,9 +698,9 @@ export class HomeComponent implements OnInit {
         }
       }
       if (path[path.length - 1].y == path[0].y && path.length > 3) { break;}
-      for (let i = 0; i < this.number_line; i++) {
+      for (let i = 0; i < this.lineNumber; i++) {
         if (!isNaN(this.data[i][path[0].y])) {
-          if (!this.line_blocked.includes(i) && path[0].x != i) {
+          if (!this.lineBlocked.includes(i) && path[0].x != i) {
             let index = path.findIndex(p => p.x == i && p.y == path[0].y && p.value == this.data[i][path[0].y])
             if (index == -1) {
               path.unshift({
@@ -718,9 +710,9 @@ export class HomeComponent implements OnInit {
               });
             }else{
               if (path.length%2 != 0) {
-                this.col_blocked.push(path[0].y)
+                this.colBlocked.push(path[0].y)
               }else{
-                this.col_blocked.push(path[0].y + 1)
+                this.colBlocked.push(path[0].y + 1)
               }
              
               path.splice(0,path.length - 2)
@@ -737,14 +729,14 @@ export class HomeComponent implements OnInit {
   private checkGenerateCase(){
     let count = 0;
     let nbElemEachLine = [];
-    for (let i = 0; i < this.number_line; i++) {
+    for (let i = 0; i < this.lineNumber; i++) {
       let nb = this.data[i].filter(d => !isNaN(d)).length;
       nbElemEachLine.push(nb)
       count+=nb;
     }
-    if ((this.number_column + this.number_line - 1) > count) { // si vrai, il y a cas de genere
+    if ((this.columnNumber + this.lineNumber - 1) > count) { // si vrai, il y a cas de genere
         let col = []
-        for (let i = 0; i < this.number_column; i++) {
+        for (let i = 0; i < this.columnNumber; i++) {
           let count = {i:0,l:0,c:0};
           for (let j= 0; j < this.data.length; j++) {
             const element = this.data[j][i];
@@ -820,7 +812,7 @@ export class HomeComponent implements OnInit {
     trh.setAttribute('style', 'height: 50px');
     var tbody = document.createElement('tbody');
     trh.appendChild(document.createElement('th'));
-    for (let i = 0; i < this.number_column; i++) {
+    for (let i = 0; i < this.columnNumber; i++) {
       let th = document.createElement('th');
       th.innerText = (i + 1).toString();
       trh.appendChild(th);
