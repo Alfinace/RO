@@ -1,0 +1,79 @@
+<form class="row form-inline offset-2" style="margin: auto;justify-content: center;">
+	<div class="col-sm-2 col-md-2 form-group">
+			<label for="dispo"></label>
+			<input placeholder="Ligne" ngModel #dispo="ngModel" type="number" min="2" required
+					(change)="getAvail(dispo.value)" class="form-control" id="dispo" name="dispo">
+			<div class="alert alert-danger mt-1 small h-25 w-100" *ngIf="dispo.touched && !dispo.valid">
+					<p class="small">
+							Invalide!
+					</p>
+			</div>
+	</div>
+	<div class="col-sm-2 col-md-2 form-group">
+			<label for="demande"></label>
+			<input placeholder="Colonne" ngModel #demande="ngModel" type="number" required
+					(change)="getOrd(demande.value)" min="2" class="form-control" id="demande" name="demande">
+			<div class="alert alert-danger mt-1 small h-25 w-100" *ngIf="demande.touched && !demande.valid">
+					<p class="small">
+							Invalide!
+					</p>
+			</div>
+	</div>
+</form>
+<div class="row offset-1" id="main">
+	<form #balasForm="ngForm" (ngSubmit)="onSubmit(balasForm.value)" class="initialTable col-sm-4 col-md-4 "
+			*ngIf="dispo.touched && demande.touched && dispo.valid && demande.valid">
+			<div class="table-responsive-sm">
+					<hr>
+
+					<span>
+							<i class="fas fa-table mr-1"></i>
+							Completer le tableau
+					</span>
+					<table class="table table-borderless js-table" id="js-table">
+							<thead>
+									<tr>
+											<th></th>
+											<th class="small" *ngFor="let d of [].constructor(demande.value);let i=index">
+													{{i+1}}
+											</th>
+											<th></th>
+									</tr>
+							</thead>
+							<tbody id="js-table-body">
+									<tr *ngFor="let alphabet of alphabets;let i=index" class="row{{i}}">
+											<td class="small alphabets">{{(alphabet)}}</td>
+											<td style="border: 1px solid grey;" *ngFor="let d of [].constructor(demande.value);let j=index"
+													class="costR{{i}}C{{j}}">
+													<input (change)="removeHtmlElements()" required ngModel #costInputR{{i}}C{{j}}="ngModel" name="costInputR{{i}}C{{j}}"
+															type="number" class="tab form-control" min="1">
+											</td>
+											<td class="available{{i}} form-group">
+													<input (change)="removeHtmlElements()" required ngModel type="number" #availableInputR{{i}}="ngModel"
+															name="availableInputR{{i}}" id="availableInput{{i}}" class="tab form-control" min="1">
+											</td>
+									</tr>
+									<tr class="rowAsked">
+											<td></td>
+											<td *ngFor="let d of [].constructor(demande.value);let k=index" class="asked{{k}} form-group">
+													<input (change)="removeHtmlElements()" required ngModel type="number" #askedInputC{{k}}="ngModel" name="askedInputC{{k}}"
+															id="askedInput{{k}}" class="tab form-control" min="1">
+											</td>
+									</tr>
+							</tbody>
+					</table>
+			</div>
+			<button type="submit" class="btn btn-primary btn-sm" [disabled]="balasForm.invalid"
+					style="margin-top: -10px; margin-left: 25px;">
+					Calculer
+			</button>
+	</form>
+</div>
+<div class="row" id="sBase"></div>
+<div class="row" id="transport">
+</div>
+<div class="row" id="sOpt"></div>
+<div class="row" id="myTree">
+</div>
+<div class="row" id="optimal">
+</div>

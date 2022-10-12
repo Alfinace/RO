@@ -1,0 +1,107 @@
+nav{
+	height: 50px;
+	position: sticky;
+	top: 0;
+	font-family:  monospace;
+	text-transform: uppercase;
+	z-index: 1000;
+	padding: 10px 100px;
+	border-bottom: 1px solid gray;
+	width: 100%;
+	background-color: #fff;
+	// max-width:99%;
+	margin: auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	.nav-left{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 20px;
+	}
+	.main-menu{
+		display: flex;
+		align-items: center;
+		gap: 30px;
+		margin: 0;
+		list-style: none;
+		li{
+			position: relative;
+		}
+		.label-shoping::after {
+			content: attr(data-label);
+			font-family: Poppins;
+			font-size: 10px;
+			line-height: 15px;
+			color: #fff;
+			text-transform: uppercase;
+			text-align: center;
+			display: block;
+			position: absolute;
+			top: -13px;
+			right: -9px;
+			height: 15px;
+			min-width: 32px;
+			border-radius: 7px;
+			padding: 0 4px;
+			background-color: #f74877;
+		}
+		li a{
+			font-weight: bold;
+			color: #333;
+			text-decoration: none;
+			display: inline-block;
+			position: relative;
+			// transform: scaleX(0);
+  		// transform-origin: left bottom;
+			transition: transform 0.25s ease-out;
+			&::after{
+				content: '';
+				position: absolute;
+				width: 100%;
+				transform: scaleX(0);
+				height: 2px;
+				bottom: 0;
+				left: 0;
+				background-color: #0087ca;
+				transform-origin: bottom left;
+				transition: transform 0.25s ease-out;
+			}
+			&:hover{
+				color: #0087ca;
+				&:after{
+					transform: scaleX(1);
+					transform-origin: bottom left;
+				}
+			}
+		}
+	}
+	.user-action{
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+		font-size: 18px;
+		gap: 20px;
+		cursor: pointer;
+		.cart{
+			position: relative;
+			&::after{
+				content: attr(data-cart);
+				font-size: 12px;
+				font-family: Poppins;
+				position: absolute;
+				min-width: 15px;
+				text-align: center;
+				top: -5px;
+				right: -5px;
+				background-color: #0087ca;
+				color: #fff;
+			}
+		}
+	}
+}
+.router-link-active{
+	color: red !important
+}
